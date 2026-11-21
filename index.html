@@ -1,0 +1,2361 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl"><head><script data-bard-client-injected="true">(function(firebaseConfig, initialAuthToken, appId) {
+        window.__firebase_config = firebaseConfig;
+        window.__initial_auth_token = initialAuthToken;
+        window.__app_id = appId;
+            })("\n{\n  \"apiKey\": \"AIzaSyCqyCcs2R2e7AegGjvFAwG98wlamtbHvZY\",\n  \"authDomain\": \"bard-frontend.firebaseapp.com\",\n  \"projectId\": \"bard-frontend\",\n  \"storageBucket\": \"bard-frontend.firebasestorage.app\",\n  \"messagingSenderId\": \"175205271074\",\n  \"appId\": \"1:175205271074:web:2b7bd4d34d33bf38e6ec7b\"\n}\n","eyJhbGciOiJSUzI1NiIsImtpZCI6IjExNjRiNzdiNDMzZDdhMDAyMWI4NjE4YjhjYTU3ZTMyZGI5MWUxMTMiLCJ0eXAiOiJKV1QifQ.eyJzdWIiOiJmaXJlYmFzZS1hZG1pbnNkay1mYnN2Y0BiYXJkLWZyb250ZW5kLmlhbS5nc2VydmljZWFjY291bnQuY29tIiwiYXVkIjoiaHR0cHM6Ly9pZGVudGl0eXRvb2xraXQuZ29vZ2xlYXBpcy5jb20vZ29vZ2xlLmlkZW50aXR5LmlkZW50aXR5dG9vbGtpdC52MS5JZGVudGl0eVRvb2xraXQiLCJ1aWQiOiIxMzA1MzYzNTgyOTc0MTkzNjQwOSIsImlzcyI6ImZpcmViYXNlLWFkbWluc2RrLWZic3ZjQGJhcmQtZnJvbnRlbmQuaWFtLmdzZXJ2aWNlYWNjb3VudC5jb20iLCJjbGFpbXMiOnsiYXBwSWQiOiJjXzllNmUxNGY4NzVlODI4ZGZfaW5kZXguaHRtbC03NTIifSwiZXhwIjoxNzk1Mjg2MDE5LCJpYXQiOjE3OTUyODI0MTksImFsZyI6IlJTMjU2In0.EOzAP2H6JefuZFNeG3r8gRpc-f1yH0Q7r5KlHbtiJayXWwQi5s3F5R5cPJ_IOZ_L-fiQOlXhqy24KIdK-iDW_vr49QdfbvAYUHVGUjrdxB7MDGvsAxYyoxOGiR9LabbyC-tdgAHcxqCkxtXZXRInXP1-2CWAE1wqOl4ZRbOG4orjqc0NoBbxDcqrj_J6uNstqcJDVn5cma_7fAdSsOjTFYNKN2kYxo3YF-Ia2q_RUmOI9vLLCIKev9Zww-1-3cL71Ajhd2s3gSAffLF2TVwVpwqH578oRQwisJqToThp9I2OnbLqGnZaFkMz5HQkMs193rjJpKIdgVBef33uGiOv_Q","c_9e6e14f875e828df_index.html-752")</script><script data-bard-client-injected="true">
+  document.addEventListener('input', (event) => {
+    if (event.target && (event.target.isContentEditable || event.target.hasAttribute('contenteditable'))) {
+      const clonedDoc = document.cloneNode(true);
+      const injectedScripts = clonedDoc.querySelectorAll('[data-bard-client-injected="true"]');
+      injectedScripts.forEach(el => el.remove());
+      window.parent.postMessage({
+        type: 'inlineEdit',
+        html: '<!DOCTYPE html>\n' + clonedDoc.documentElement.outerHTML
+      }, '*');
+    }
+  });
+</script><script data-bard-client-injected="true">(function(){'use strict';window.addEventListener("message",a=>{a.data&&a.data.type==="SUPPLEMENTAL_DATA_UPDATE"&&window.dispatchEvent(new CustomEvent("supplementaldataupdate",{detail:a.data.data}))});}).call(this);
+</script><script data-bard-client-injected="true">(function() {
+  const SCROLL_KEYS = new Set([
+    'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight',
+    ' ', 'Spacebar', 'PageUp', 'PageDown', 'Home', 'End',
+  ]);
+  const HORIZONTAL_KEYS = new Set(['ArrowLeft', 'ArrowRight']);
+
+  function isTextEntryTarget(target) {
+    if (!target) return false;
+    const tagName = target.tagName;
+    return tagName === 'INPUT' || tagName === 'TEXTAREA' ||
+        tagName === 'SELECT' || target.isContentEditable === true;
+  }
+
+  // An element absorbs the key only if it both overflows on the axis being
+  // scrolled and is configured to scroll on that axis. The cheap dimension
+  // test runs first because getComputedStyle forces a style recalc, and this
+  // runs on every keypress. Each axis is read from its own longhand: the
+  // 'overflow' shorthand serializes as two values when the axes differ, which
+  // is the common 'overflow-x: hidden; overflow-y: auto' pane.
+  function canScroll(node, horizontal) {
+    const overflows = horizontal ? node.scrollWidth > node.clientWidth
+                                 : node.scrollHeight > node.clientHeight;
+    if (!overflows) return false;
+    const style = window.getComputedStyle(node);
+    const overflow = horizontal ? style.overflowX : style.overflowY;
+    return overflow === 'auto' || overflow === 'scroll';
+  }
+
+  // Walks up from the event target so nested scrollers keep their behavior.
+  // <body> is included because pages that pin the root height make it the
+  // scroll container.
+  function hasScrollableAncestor(target, horizontal) {
+    let node = target;
+    while (node && node !== document.documentElement) {
+      if (canScroll(node, horizontal)) return true;
+      node = node.parentElement;
+    }
+    return false;
+  }
+
+  function rootCanScroll(horizontal) {
+    const scroller = document.scrollingElement || document.documentElement;
+    if (!scroller) return false;
+    // Tolerate a pixel of rounding so subpixel layouts do not look scrollable.
+    return horizontal ? scroller.scrollWidth > window.innerWidth + 1
+                      : scroller.scrollHeight > window.innerHeight + 1;
+  }
+
+  window.addEventListener('keydown', function(event) {
+    if (!SCROLL_KEYS.has(event.key)) return;
+    if (event.defaultPrevented) return;
+    // Alt and Meta turn arrows into browser history navigation, and Ctrl is
+    // reserved for shortcuts, so none of them are scroll intent.
+    if (event.altKey || event.metaKey || event.ctrlKey) return;
+
+    const target = event.target;
+    if (isTextEntryTarget(target)) return;
+
+    // Anything that can still absorb the scroll gets to keep it.
+    const horizontal = HORIZONTAL_KEYS.has(event.key);
+    if (rootCanScroll(horizontal)) return;
+    if (hasScrollableAncestor(target, horizontal)) return;
+
+    event.preventDefault();
+  }, {capture: true, passive: false});
+})();</script><script data-bard-client-injected="true">(function() {
+  // Ensure this script is executed only once
+  if (window.firebaseAuthBridgeScriptLoaded) {
+    return;
+  }
+  window.firebaseAuthBridgeScriptLoaded = true;
+
+  let nextTokenPromiseId = 0;
+
+  // Stores { resolve, reject } for ongoing token requests
+  const pendingTokenPromises = {};
+
+  // Listen for messages from the Host Application
+  window.addEventListener('message', function(event) {
+
+    const messageData = event.data;
+
+  if (messageData && messageData.type === 'RESOLVE_NEW_FIREBASE_TOKEN') {
+      const { success, token, error, promiseId } = messageData ?? {};
+      if (pendingTokenPromises[promiseId]) {
+        if (success) {
+          pendingTokenPromises[promiseId].resolve(token);
+        } else {
+          pendingTokenPromises[promiseId].reject(new Error(error || 'Token refresh failed from host.'));
+        }
+        delete pendingTokenPromises[promiseId];
+      }
+    }
+  });
+
+  // Expose a function for the Generated App to request a new Firebase token
+  window.requestNewFirebaseToken = function() {
+    const currentPromiseId = nextTokenPromiseId++;
+    const promise = new Promise((resolve, reject) => {
+      pendingTokenPromises[currentPromiseId] = { resolve, reject };
+    });
+    if (window.parent && window.parent !== window) {
+      window.parent.postMessage({
+        type: 'REQUEST_NEW_FIREBASE_TOKEN',
+        promiseId: currentPromiseId
+      }, '*');
+    } else {
+      pendingTokenPromises[currentPromiseId].reject(new Error('No parent window to request token from.'));
+      delete pendingTokenPromises[currentPromiseId];
+    }
+    return promise;
+  };
+})();</script><script data-bard-client-injected="true">
+let realOriginalGetUserMedia = null;
+if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+  realOriginalGetUserMedia = navigator.mediaDevices.getUserMedia.bind(navigator.mediaDevices);
+}
+
+(function() {
+  if (navigator.mediaDevices && navigator.mediaDevices.__proto__) {
+    try {
+      Object.defineProperty(navigator.mediaDevices.__proto__, 'getUserMedia', {
+        get: function() {
+          return undefined; // Or throw an error
+        },
+        configurable: false
+      });
+    } catch (error) {
+      console.error("Error defining prototype getter:", error);
+    }
+  }
+})();
+
+(function() {
+  const pendingMediaResolvers = {};
+  let nextMediaPromiseId = 0;
+
+  function requestMediaPermissions(constraints) {
+    const mediaPromiseId = nextMediaPromiseId++;
+    const promise = new Promise((resolve, reject) => {
+      pendingMediaResolvers[mediaPromiseId] = (granted) => {
+        delete pendingMediaResolvers[mediaPromiseId];
+        resolve(granted);
+      };
+    });
+
+    window.parent.postMessage({
+      type: 'requestMediaPermission',
+      constraints: constraints,
+      promiseId: mediaPromiseId,
+    }, '*');
+
+    return promise;
+  }
+
+  let originalGetUserMedia = realOriginalGetUserMedia;
+
+  function interceptGetUserMedia() {
+    if (navigator.mediaDevices) {
+      Object.defineProperty(navigator.mediaDevices, 'getUserMedia', {
+        value: function(constraints) {
+          return requestMediaPermissions(constraints).then((granted) => {
+            if (granted) {
+              if (originalGetUserMedia) {
+                return originalGetUserMedia(constraints);
+              } else {
+                throw new Error("Original getUserMedia not available.");
+              }
+            } else {
+              throw new DOMException('Permission denied', 'NotAllowedError');
+            }
+          });
+        },
+        writable: false,
+        configurable: false
+      });
+    }
+  }
+
+  interceptGetUserMedia();
+
+  const observer = new MutationObserver(function(mutationsList, observer) {
+    for (const mutation of mutationsList) {
+      if (mutation.type === 'reconfigured' && mutation.name === 'getUserMedia' && mutation.object === navigator.mediaDevices) {
+        interceptGetUserMedia();
+      } else if (mutation.type === 'attributes' && mutation.attributeName === 'getUserMedia' && mutation.target === navigator.mediaDevices) {
+        interceptGetUserMedia();
+      } else if (mutation.type === 'childList' && mutation.addedNodes) {
+        mutation.addedNodes.forEach(node => {
+          if (node === navigator.mediaDevices) {
+            interceptGetUserMedia();
+          }
+        });
+      }
+    }
+  });
+
+  function interceptSpeechRecognition() {
+    if (!window.SpeechRecognition && !window.webkitSpeechRecognition) {
+      return;
+    }
+
+    const OriginalSpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+
+    const SpeechRecognitionWrapper = function(...args) {
+      const recognizer = new OriginalSpeechRecognition(...args);
+      const originalStart = recognizer.start.bind(recognizer);
+
+      recognizer.start = function() {
+        requestMediaPermissions({ audio: true }).then(granted => {
+          if (granted) {
+            originalStart();
+          } else {
+            const errorEvent = new SpeechRecognitionErrorEvent('error');
+            errorEvent.error = 'not-allowed'; // This is the standard error for permission denial.
+            recognizer.dispatchEvent(errorEvent);
+          }
+        });
+      };
+
+      return recognizer;
+    };
+
+    SpeechRecognitionWrapper.prototype = OriginalSpeechRecognition.prototype;
+    SpeechRecognitionWrapper.prototype.constructor = SpeechRecognitionWrapper;
+
+    if (window.SpeechRecognition) {
+      window.SpeechRecognition = SpeechRecognitionWrapper;
+    }
+    if (window.webkitSpeechRecognition) {
+      window.webkitSpeechRecognition = SpeechRecognitionWrapper;
+    }
+  }
+
+  interceptSpeechRecognition();
+
+  window.addEventListener('message', function(event) {
+    if (event.data) {
+      if (event.data.type === 'resolveMediaPermission') {
+        const { promiseId, granted } = event.data;
+        if (pendingMediaResolvers[promiseId]) {
+          pendingMediaResolvers[promiseId](granted);
+        }
+      }
+    }
+  });
+
+})();</script><script ws-interception-config="{&quot;parentOrigin&quot;:&quot;https://gemini.google.com&quot;,&quot;proxiedDomains&quot;:[]}" data-bard-client-injected="true">(function(){'use strict';var u=typeof Object.defineProperties=="function"?Object.defineProperty:function(b,d,e){if(b==Array.prototype||b==Object.prototype)return b;b[d]=e.value;return b};function v(b){b=["object"==typeof globalThis&&globalThis,b,"object"==typeof window&&window,"object"==typeof self&&self,"object"==typeof global&&global];for(var d=0;d<b.length;++d){var e=b[d];if(e&&e.Math==Math)return e}throw Error("Cannot find global object");}var w=v(this);
+function y(b,d){if(d)a:{var e=w;b=b.split(".");for(var h=0;h<b.length-1;h++){var k=b[h];if(!(k in e))break a;e=e[k]}b=b[b.length-1];h=e[b];d=d(h);d!=h&&d!=null&&u(e,b,{configurable:!0,writable:!0,value:d})}}function z(b){function d(h){return b.next(h)}function e(h){return b.throw(h)}return new Promise(function(h,k){function m(n){n.done?h(n.value):Promise.resolve(n.value).then(d,e).then(m,k)}m(b.next())})}y("globalThis",function(b){return b||w});/*
+
+ Copyright The Closure Library Authors.
+ SPDX-License-Identifier: Apache-2.0
+*/
+function A(b,d){function e(){}e.prototype=d.prototype;b.i=d.prototype;b.prototype=new e;b.prototype.constructor=b;b.h=function(h,k,m){for(var n=Array(arguments.length-2),p=2;p<arguments.length;p++)n[p-2]=arguments[p];return d.prototype[k].apply(h,n)}};function B(b,d,e="*"){function h(a){if(typeof a==="string")return F.encode(a).buffer;if(a instanceof ArrayBuffer)return a.slice(0);if(ArrayBuffer.isView(a))return a.buffer.slice(a.byteOffset,a.byteOffset+a.byteLength);throw Error("Invalid data type");}function k(a){a=h(a);var f={type:"send",data:new Uint8Array(a)},g;(g=r)==null||g.postMessage(f,[a])}function m(){if(!r)throw Error("Data port not captured yet.");r.onmessage=a=>{if(a.data.type==="message"){a=new MessageEvent("message",{data:G.decode(a.data.data)});
+let f;(f=c.onmessage)==null||f.call(c,a);c.dispatchEvent(a)}}}function n(){if(!t)throw Error("Control port not captured yet.");t.onmessage=a=>{switch(a.data.type){case "open":l=1;var f=new Event("open"),g;(g=c.onopen)==null||g.call(c,f);c.dispatchEvent(f);q.forEach(H=>{k(H)});q=[];break;case "close":g=a.data;l=3;g=new CloseEvent("close",{code:g.code,reason:g.reason,wasClean:g.wasClean});(f=c.onclose)==null||f.call(c,g);c.dispatchEvent(g);break;case "error":l=3;f=new Event("error");let x;(x=c.onerror)==
+null||x.call(c,f);c.dispatchEvent(f)}}}function p(a){return z(function*(){var f=new MessageChannel;t=f.port1;var g=new MessageChannel;r=g.port1;n();m();window.parent.postMessage({type:"websocket_open",portOrdering:["control","data"],url:b,protocols:a||[],connectionId:I},e,[f.port2,g.port2])}())}var c=Reflect.construct(EventTarget,[],new.target);c.CONNECTING=0;c.OPEN=1;c.CLOSING=2;c.CLOSED=3;c.url=b;c.binaryType="arraybuffer";c.protocol="";c.extensions="";var l=0,t=null,r=null,q=[],F=new TextEncoder,
+G=new TextDecoder;c.onopen=null;c.onmessage=null;c.onclose=null;c.onerror=null;Object.defineProperty(c,"readyState",{get:()=>l,enumerable:!0,configurable:!0});Object.defineProperty(c,"bufferedAmount",{get:()=>{var a=0;q.forEach(f=>{a+=typeof f==="string"?f.length:f.byteLength});return a},enumerable:!0,configurable:!0});var I=function(){var a;return((a=globalThis.crypto)==null?0:a.randomUUID)?globalThis.crypto.randomUUID():"xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g,f=>{var g=Math.random()*
+16|0;return(f==="x"?g:g&3|8).toString(16)})}();c.send=a=>{if(l===1)a instanceof Blob?a.arrayBuffer().then(f=>{k(f)}):k(a);else if(l===0)if(typeof a==="string")q.push(a);else if(a instanceof ArrayBuffer||ArrayBuffer.isView(a))q.push(h(a));else throw Error("Sending Blob is not supported before the connection is open.");else console.debug("WebSocket send called in CLOSING or CLOSED state; ignored.")};c.close=(a=1E3,f="")=>{if(l!==2&&l!==3){l=2;a={type:"close",code:a,reason:f,wasClean:a===1E3};var g;
+(g=t)==null||g.postMessage(a)}};Promise.resolve().then(()=>p(d));return c}A(B,EventTarget);var C=document.currentScript,D=C==null?void 0:C.getAttribute("ws-interception-config");if(!D)throw Error("WebSocket Interceptor: Missing ws-interception-config attribute in the script tag.");var E=JSON.parse(D);if(!E.parentOrigin||typeof E.parentOrigin!=="string")throw Error("WebSocket Interceptor: Invalid parentOrigin in ws-interception-config");
+(function(b){var d=Object.getOwnPropertyDescriptor(window,"WebSocket");if(!d||d.writable||d.configurable)d=Object.assign(function(e,h){try{let k=(new URL(e)).hostname;if(b.proxiedDomains.some(m=>k===m||k.endsWith(`.${m}`)))return new B(e,h,b.parentOrigin)}catch(k){throw window.parent.postMessage({type:"websocket_blocked",url:e,reason:"blocked_invalid_url"},b.parentOrigin),new DOMException(`WebSocket connection to '${e}' is not allowed in Canvas.`,"SecurityError");}window.parent.postMessage({type:"websocket_blocked",
+url:e,reason:"blocked_domain_not_allowlisted"},b.parentOrigin);throw new DOMException(`WebSocket connection to '${e}' is not allowed in Canvas.`,"SecurityError");},{CONNECTING:0,OPEN:1,CLOSING:2,CLOSED:3}),Object.defineProperty(window,"WebSocket",{value:d,writable:!1,configurable:!1})})({proxiedDomains:E.proxiedDomains||[],parentOrigin:E.parentOrigin});}).call(this);
+</script><script data-bard-client-injected="true">((function(modelInformation) {
+  const originalFetch = window.fetch;
+  // TODO: b/421908508 - Move these out of the script and match all generative AI model calls.
+  let googleLlmBaseApiUrls = [
+    'https://generativelanguage.googleapis.com/v1beta/models/' + modelInformation.textModelName + ':streamGenerateContent',
+    'https://generativelanguage.googleapis.com/v1beta/models/' + modelInformation.textModelName + ':generateContent',
+    'https://generativelanguage.googleapis.com/v1beta/models/' + modelInformation.imageModelName + ':predict',
+    'https://generativelanguage.googleapis.com/v1beta/models/' + modelInformation.imageModelName + ':predictLongRunning',
+    'https://generativelanguage.googleapis.com/v1beta/models/' + modelInformation.imageEditModelName + ':generateContent',
+    'https://generativelanguage.googleapis.com/v1beta/models/' + modelInformation.imageTransformModelName + ':generateContent',
+    'https://generativelanguage.googleapis.com/v1beta/models/' + modelInformation.videoModelName + ':predict',
+    'https://generativelanguage.googleapis.com/v1beta/models/' + modelInformation.videoModelName + ':predictLongRunning',
+    'https://generativelanguage.googleapis.com/v1beta/models/' + modelInformation.ttsModelName + ':generateContent',
+  ];
+  modelInformation.deprecatedTextModelNames.forEach((modelName) => {
+    googleLlmBaseApiUrls.push(
+      'https://generativelanguage.googleapis.com/v1beta/models/' + modelName + ':streamGenerateContent',
+      'https://generativelanguage.googleapis.com/v1beta/models/' + modelName + ':generateContent',
+    );
+  });
+  modelInformation.deprecatedImageModelNames.forEach((modelName) => {
+    googleLlmBaseApiUrls.push(
+      'https://generativelanguage.googleapis.com/v1beta/models/' + modelName + ':predict',
+      'https://generativelanguage.googleapis.com/v1beta/models/' + modelName + ':predictLongRunning',
+      'https://generativelanguage.googleapis.com/v1beta/models/' + modelName + ':generateContent',
+      'https://generativelanguage.googleapis.com/v1beta/models/' + modelName + ':streamGenerateContent',
+    );
+  });
+  modelInformation.deprecatedGenerateImageModelNames.forEach((modelName) => {
+    googleLlmBaseApiUrls.push(
+      'https://generativelanguage.googleapis.com/v1beta/models/' + modelName + ':generateContent',
+      'https://generativelanguage.googleapis.com/v1beta/models/' + modelName + ':streamGenerateContent',
+    );
+  });
+  modelInformation.deprecatedImageTransformModelNames.forEach((modelName) => {
+    googleLlmBaseApiUrls.push(
+      'https://generativelanguage.googleapis.com/v1beta/models/' + modelName + ':generateContent',
+      'https://generativelanguage.googleapis.com/v1beta/models/' + modelName + ':streamGenerateContent',
+    );
+  });
+
+  const pendingFetchResolvers = {};
+  let nextPromiseId = 0;
+
+  function handleStringInput(input, optionsArgument) {
+    const actualUrl = input;
+    const fetchCallArgs = [actualUrl, optionsArgument];
+    const effectiveOptions = optionsArgument || {};
+    const bodyForApiKeyCheck = effectiveOptions.body;
+    const bodyForPostMessage = effectiveOptions.body;
+    return { actualUrl, fetchCallArgs, effectiveOptions, bodyForApiKeyCheck, bodyForPostMessage };
+  }
+
+  function handleRequestInput(input, optionsArgument) {
+    const actualUrl = input.url;
+    const fetchCallArgs = [input, optionsArgument];
+    const effectiveOptions = { method: input.method, headers: new Headers(input.headers) };
+    let bodyForApiKeyCheck;
+    let bodyForPostMessage;
+
+    if (optionsArgument) {
+      if (optionsArgument.method) effectiveOptions.method = optionsArgument.method;
+      if (optionsArgument.headers) effectiveOptions.headers = new Headers(optionsArgument.headers);
+      if ('body' in optionsArgument) {
+        bodyForApiKeyCheck = optionsArgument.body;
+        bodyForPostMessage = optionsArgument.body;
+      } else {
+        bodyForApiKeyCheck = undefined;
+        bodyForPostMessage = input.body;
+      }
+    } else {
+      bodyForApiKeyCheck = undefined;
+      bodyForPostMessage = input.body;
+    }
+    return { actualUrl, fetchCallArgs, effectiveOptions, bodyForApiKeyCheck, bodyForPostMessage };
+  }
+
+  window.fetch = function(input, optionsArgument) {
+    let actualUrl;
+    let fetchCallArgs;
+    let effectiveOptions = {};
+    let bodyForApiKeyCheck;
+    let bodyForPostMessage;
+
+    if (typeof input === 'string') {
+      ({actualUrl, fetchCallArgs, effectiveOptions, bodyForApiKeyCheck, bodyForPostMessage} = handleStringInput(input, optionsArgument));
+    } else if (input instanceof Request) {
+      ({actualUrl, fetchCallArgs, effectiveOptions, bodyForApiKeyCheck, bodyForPostMessage} = handleRequestInput(input, optionsArgument));
+    } else {
+      return originalFetch.apply(window, [input, optionsArgument]);
+    }
+
+    effectiveOptions.method = effectiveOptions.method || 'GET';
+    if (!effectiveOptions.headers) {
+      effectiveOptions.headers = new Headers();
+    }
+
+
+    if (typeof actualUrl === 'string' && googleLlmBaseApiUrls.some((url) => actualUrl.startsWith(url))) {
+      let apiKeyIsNull = true;
+
+      const regex = new RegExp("models/([^:]+)");
+      const modelNameMatch = actualUrl.match(regex);
+      const modelName = modelNameMatch ? modelNameMatch[1] : 'unspecified';
+
+
+      try {
+        const urlObject = new URL(actualUrl);  // Use URL object for robust parsing
+        const apiKeyParam = urlObject.searchParams.get('key');
+        if (apiKeyParam) {
+          apiKeyIsNull = false;
+        }
+      } catch (e) {
+        // Continue checks even if URL parsing fails
+      }
+
+      if (apiKeyIsNull && effectiveOptions.headers) {
+        const h = new Headers(effectiveOptions.headers);
+        const apiKeyHeaderValue = h.get('X-API-Key') || h.get('x-api-key');
+        if (apiKeyHeaderValue) {
+          apiKeyIsNull = false;
+          return originalFetch.apply(window, fetchCallArgs);
+        }
+      }
+
+      if (apiKeyIsNull && effectiveOptions.method && ['POST', 'PUT', 'PATCH'].includes(effectiveOptions.method.toUpperCase()) && typeof bodyForApiKeyCheck === 'string') {
+        try {
+          const bodyData = JSON.parse(bodyForApiKeyCheck);
+          if (bodyData && bodyData.apiKey) {
+            apiKeyIsNull = false;
+            return originalFetch.apply(window, fetchCallArgs);
+          }
+        } catch (e) {
+          // Ignore JSON parsing errors
+        }
+      }
+
+      if(apiKeyIsNull) {
+        const promiseId = nextPromiseId++;
+        const promise = new Promise((resolve) => {
+          pendingFetchResolvers[promiseId] = (resolvedResponse) => {
+            delete pendingFetchResolvers[promiseId];
+            resolve(resolvedResponse);
+          };
+        });
+
+        let serializedBodyForPostMessage;
+        if (typeof bodyForPostMessage === 'string' || bodyForPostMessage == null) {
+            serializedBodyForPostMessage = bodyForPostMessage;
+        } else if (bodyForPostMessage instanceof ReadableStream) {
+            serializedBodyForPostMessage = null;
+        } else {
+            try {
+                serializedBodyForPostMessage = JSON.stringify(bodyForPostMessage);
+            } catch (e) {
+                serializedBodyForPostMessage = null;
+            }
+        }
+
+        const messageOptions = {
+            method: effectiveOptions.method,
+            headers: Object.fromEntries(new Headers(effectiveOptions.headers).entries()),
+            body: serializedBodyForPostMessage
+        };
+
+        window.parent.postMessage({
+          type: 'requestFetch',
+          url: actualUrl,
+          modelName: modelName,
+          options: messageOptions,
+          promiseId: promiseId,
+        }, '*');
+
+        return promise;
+      }
+      return originalFetch.apply(window, fetchCallArgs);
+    }
+    return originalFetch.apply(window, fetchCallArgs);
+  };
+
+  window.addEventListener('message', function(event) {
+    if (event.data && event.data.type === 'resolveFetch') {
+      const { promiseId, response } = event.data;
+      if (pendingFetchResolvers[promiseId]) {
+        try {
+          const reconstructedResponse = new Response(response.body, {
+            status: response.status,
+            statusText: response.statusText,
+            headers: new Headers(response.headers),
+          });
+          pendingFetchResolvers[promiseId](reconstructedResponse);
+        } catch (error) {
+          pendingFetchResolvers[promiseId](new Response(null, { status: 500, statusText: "Interceptor Response Reconstruction Error" }));
+        }
+      }
+    }
+  });
+
+}))({"textModelName":"gemini-3-flash-preview","imageModelName":"imagen-4.0-generate-001","imageEditModelName":"gemini-3.1-flash-image","imageTransformModelName":"gemini-3-pro-image","videoModelName":"veo-2.0-generate-001","ttsModelName":"gemini-2.5-flash-preview-tts","deprecatedTextModelNames":["gemini-2.0-flash","gemini-2.5-flash","gemini-2.5-flash-preview-04-17","gemini-2.5-flash-preview-05-20","gemini-2.5-flash-preview-09-2025"],"deprecatedImageModelNames":["imagen-3.0-generate-001","imagen-3.0-generate-002"],"deprecatedGenerateImageModelNames":["gemini-2.5-flash-image-preview","gemini-2.5-flash-image","gemini-3.1-flash-image-preview"],"deprecatedImageTransformModelNames":["gemini-3-pro-image-preview-11-2025"]})</script><script data-bard-client-injected="true">(function() {
+  const OVERLAY_SELECTOR =
+    'dialog[open], [role="dialog"], [role="alertdialog"], [role="menu"], [role="listbox"], [role="combobox"]';
+
+  function isVisibleOverlay(element) {
+    if (element.closest('[hidden], [aria-hidden="true"], [inert]')) {
+      return false;
+    }
+    if (window.getComputedStyle(element).visibility === 'hidden') {
+      return false;
+    }
+    for (let cur = element; cur; cur = cur.parentElement) {
+      if (window.getComputedStyle(cur).display === 'none') {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  function hasOpenOverlay() {
+    const candidates = document.querySelectorAll(OVERLAY_SELECTOR);
+    for (let i = 0; i < candidates.length; i++) {
+      if (isVisibleOverlay(candidates[i])) {
+        return true;
+      }
+    }
+    try {
+      if (document.querySelector('[popover]:popover-open')) {
+        return true;
+      }
+    } catch (e) {
+      // Ignore engines that do not support :popover-open.
+    }
+    return false;
+  }
+
+  function isNonEmptySearchInput(target) {
+    return (
+      Boolean(target) &&
+      target.tagName === 'INPUT' &&
+      typeof target.type === 'string' &&
+      target.type.toLowerCase() === 'search' &&
+      typeof target.value === 'string' &&
+      target.value.length > 0
+    );
+  }
+
+  function shouldIgnoreEscape(event) {
+    return (
+      event.key !== 'Escape' ||
+      event.altKey ||
+      event.ctrlKey ||
+      event.metaKey ||
+      event.shiftKey ||
+      event.isComposing ||
+      event.repeat ||
+      event.keyCode === 229 ||
+      isNonEmptySearchInput(event.target)
+    );
+  }
+
+  let shouldIgnoreCaptureState = false;
+
+  window.addEventListener(
+    'keydown',
+    function(event) {
+      if (event.key === 'Escape') {
+        shouldIgnoreCaptureState =
+          hasOpenOverlay() || isNonEmptySearchInput(event.target);
+      }
+    },
+    {capture: true},
+  );
+
+  window.addEventListener('keydown', function(event) {
+    if (
+      shouldIgnoreEscape(event) ||
+      event.defaultPrevented ||
+      shouldIgnoreCaptureState
+    ) {
+      return;
+    }
+    const wasBlockedOnCapture = shouldIgnoreCaptureState;
+    queueMicrotask(function() {
+      if (event.defaultPrevented || wasBlockedOnCapture) {
+        return;
+      }
+      if (window.parent && window.parent !== window) {
+        window.parent.postMessage({'type': 'escapeKey'}, '*');
+      }
+    });
+  });
+})();</script><script data-bard-client-injected="true">(function() {
+  function normalizeSlug(str) {
+    try {
+      return str
+        .trim()
+        .toLowerCase()
+        .replace(/[^p{L}p{N}s_-]/gu, '')
+        .replace(/s+/g, '-');
+    } catch (e) {
+      return str
+        .trim()
+        .toLowerCase()
+        .replace(/[^a-z0-9s_-]/g, '')
+        .replace(/s+/g, '-');
+    }
+  }
+
+  function findTargetElement(hash) {
+    if (!hash || hash === '#') {
+      return null;
+    }
+    const rawId = hash.startsWith('#') ? hash.slice(1) : hash;
+    let decodedId = rawId;
+    try {
+      decodedId = decodeURIComponent(rawId);
+    } catch (e) {
+      // Ignore URI malformed errors.
+    }
+
+    // 1. Direct ID match (raw and decoded).
+    let target = document.getElementById(rawId) || document.getElementById(decodedId);
+    if (target) {
+      return target;
+    }
+
+    // 2. Name attribute match (<a name="...">).
+    try {
+      if (typeof CSS !== 'undefined' && CSS.escape) {
+        target =
+          document.querySelector('[name="' + CSS.escape(rawId) + '"]') ||
+          document.querySelector('[name="' + CSS.escape(decodedId) + '"]');
+      } else {
+        const namedElements = document.getElementsByName(rawId);
+        if (namedElements && namedElements.length > 0) {
+          return namedElements[0];
+        }
+      }
+    } catch (e) {
+      // Ignore querySelector syntax errors.
+    }
+    if (target) {
+      return target;
+    }
+
+    // 3. Match heading text by slug (for Markdown TOCs where headings lack explicit IDs).
+    const targetSlug = normalizeSlug(decodedId);
+    if (targetSlug) {
+      for (const heading of document.querySelectorAll('h1, h2, h3, h4, h5, h6')) {
+        if (normalizeSlug(heading.textContent || '') === targetSlug) {
+          return heading;
+        }
+      }
+    }
+
+    return null;
+  }
+
+  document.addEventListener('click', function(event) {
+    const target = event.target;
+    const anchor = target && typeof target.closest === 'function' ? target.closest('a') : null;
+    if (!anchor) {
+      return;
+    }
+
+    const href = anchor.getAttribute('href');
+    if (
+      !href ||
+      href.trim().toLowerCase().startsWith('javascript:') ||
+      anchor.hasAttribute('download')
+    ) {
+      return;
+    }
+
+    // Check if the link is an in-page hash / anchor link.
+    if (href.startsWith('#')) {
+      event.preventDefault();
+      const targetElement = findTargetElement(href);
+      if (targetElement) {
+        targetElement.scrollIntoView({behavior: 'smooth', block: 'start'});
+      }
+      return;
+    }
+
+    // Check if the URL has the same origin/pathname but with a hash.
+    try {
+      const url = new URL(anchor.href, window.location.href);
+      if (
+        url.hash &&
+        url.origin === window.location.origin &&
+        url.pathname === window.location.pathname
+      ) {
+        event.preventDefault();
+        const targetElement = findTargetElement(url.hash);
+        if (targetElement) {
+          targetElement.scrollIntoView({behavior: 'smooth', block: 'start'});
+        }
+        return;
+      }
+    } catch (e) {
+      // Fall through if URL parsing fails.
+    }
+
+    // For all external or full navigation links, prevent iframe-level navigation
+    // (which breaks in AGSA WebView or sandboxed iframes) and ensure they open
+    // safely in a new tab/window.
+    if (anchor.target !== '_blank') {
+      event.preventDefault();
+      window.open(anchor.href, '_blank', 'noopener,noreferrer');
+    }
+  }, {capture: true});
+})();</script><script data-bard-client-injected="true">(function(){'use strict';function a(){window.parent.postMessage({type:"interaction"},"*")}window.addEventListener("click",a,{capture:!0,passive:!0});window.addEventListener("touchstart",a,{capture:!0,passive:!0});window.addEventListener("keydown",a,{capture:!0,passive:!0});}).call(this);
+</script><script data-bard-client-injected="true">(function() {
+  const originalConsoleLog = console.log;
+  const originalConsoleError = console.error;
+
+    /**
+   * Normalizes an error event or a promise rejection reason into a structured error object.
+   * @param {*} errorEventOrReason The error object or reason.
+   * @return {object} Structured error data { message, name, stack }.
+   */
+  function getErrorObject(errorEventOrReason) {
+    if (errorEventOrReason instanceof Error) {
+      return {
+        message: errorEventOrReason.message,
+        name: errorEventOrReason.name,
+        stack: errorEventOrReason.stack,
+      };
+    }
+    // Fallback for non-Error objects.
+    try {
+      return {
+        message: JSON.stringify(errorEventOrReason),
+        name: 'UnknownErrorType',
+        stack: null,
+      };
+    } catch (e) {
+      return {
+        message: String(errorEventOrReason),
+        name: 'UnknownErrorTypeNonStringifiable',
+        stack: null,
+      };
+    }
+  }
+
+  /**
+   * Converts an array of arguments (from log/error) into a single string.
+   * Handles Error objects specially to include their message and stack.
+   * @param {Array<*>} args - Arguments passed to console methods.
+   * @return {string} A string representation of the arguments.
+   */
+  function stringifyArgs(args) {
+    return args
+      .map((arg) => {
+        if (arg instanceof Error) {
+          const {message, stack} = arg;
+          return `Error: ${message}${stack ? ('\nStack: ' + stack) : ''}`;
+        }
+        if (typeof arg === 'object' && arg !== null) {
+          try {
+            return JSON.stringify(arg);
+          } catch (error) {
+            return '[Circular Object]';
+          }
+        } else {
+          return String(arg);
+        }
+      })
+      .join(' ');
+  }
+
+  console.log = function(...args) {
+    const logString = stringifyArgs(args);
+    window.parent.postMessage({ type: 'log', message: logString }, '*');
+    originalConsoleLog.apply(console, args);
+  };
+
+  console.error = function(...args) {
+    let errorData;
+    if (args.length > 0 && args[0] instanceof Error) {
+      const err = args[0];
+      // If the first arg is an Error, capture its details.
+      errorData = {
+        type: 'error',
+        source: 'CONSOLE_ERROR',
+        ...getErrorObject(err),
+        rawArgsString: stringifyArgs(args.slice(1)),
+        timestamp: new Date().toISOString(),
+      };
+    } else {
+      // If not an Error object, treat all args as a general error message.
+      errorData = {
+        type: 'error',
+        source: 'CONSOLE_ERROR',
+        message: stringifyArgs(args),
+        name: 'ConsoleLoggedError',
+        stack: null,
+        timestamp: new Date().toISOString(),
+      };
+    }
+    window.parent.postMessage(errorData, '*');
+    originalConsoleError.apply(console, args);
+  };
+
+  // Listen for global unhandled synchronous errors.
+  window.addEventListener('error', function(event) {
+    const errorDetails = event.error ? getErrorObject(event.error) : {
+      message: event.message,
+      name: 'GlobalError',
+      stack: null,
+      filename: event.filename,
+      lineno: event.lineno,
+      colno: event.colno,
+    };
+
+    window.parent.postMessage({
+      type: 'error',
+      source: 'global',
+      ...errorDetails,
+      message: errorDetails.message || event.message,
+      timestamp: new Date().toISOString(),
+    }, '*');
+  });
+
+  // Listen for unhandled promise rejections (asynchronous errors).
+  window.addEventListener('unhandledrejection', function(event) {
+    const errorDetails = getErrorObject(event.reason);
+
+    window.parent.postMessage({
+      type: 'error',
+      source: 'unhandledrejection',
+      ...errorDetails,
+      message: errorDetails.message || 'Unhandled Promise Rejection',
+      timestamp: new Date().toISOString(),
+    }, '*');
+  });
+
+})();</script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>نظام حجز مواعيد المناقشات العلمية - الدراسات العليا</title>
+    <!-- تحميل Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- تحميل خطوط جوجل العربية (Cairo & Tajawal) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&amp;family=Tajawal:wght@400;500;700&amp;display=swap" rel="stylesheet">
+    <!-- أيقونات Lucide -->
+    <script src="https://unpkg.com/lucide@latest" crossorigin="anonymous"></script>
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Cairo', 'Tajawal', 'sans-serif'],
+                    },
+                    colors: {
+                        academic: {
+                            50: '#f0f4f8',
+                            100: '#d9e2ec',
+                            200: '#bcccdc',
+                            300: '#9fb3c8',
+                            400: '#829ab1',
+                            500: '#627d98',
+                            600: '#486581',
+                            700: '#334e68',
+                            800: '#243b53',
+                            900: '#102a43',
+                        },
+                        gold: {
+                            500: '#c59b27',
+                            600: '#a67f19',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Cairo', sans-serif;
+            background-color: #f8fafc;
+        }
+        /* تأثير انتقالي ناعم للأيام */
+        .day-card {
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .day-card:hover:not(:disabled) {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 15px -3px rgba(16, 42, 67, 0.12), 0 4px 6px -2px rgba(16, 42, 67, 0.06);
+        }
+        /* إخفاء شريط التمرير مع الحفاظ على التمرير */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        /* تنسيق الطباعة */
+        @media print {
+            body * {
+                visibility: hidden;
+            }
+            #printable-area, #printable-area * {
+                visibility: visible;
+            }
+            #printable-area {
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 100%;
+                padding: 20px;
+                background: white;
+            }
+            .no-print {
+                display: none !important;
+            }
+        }
+    </style>
+<style>*, ::before, ::after{--tw-border-spacing-x:0;--tw-border-spacing-y:0;--tw-translate-x:0;--tw-translate-y:0;--tw-rotate:0;--tw-skew-x:0;--tw-skew-y:0;--tw-scale-x:1;--tw-scale-y:1;--tw-pan-x: ;--tw-pan-y: ;--tw-pinch-zoom: ;--tw-scroll-snap-strictness:proximity;--tw-gradient-from-position: ;--tw-gradient-via-position: ;--tw-gradient-to-position: ;--tw-ordinal: ;--tw-slashed-zero: ;--tw-numeric-figure: ;--tw-numeric-spacing: ;--tw-numeric-fraction: ;--tw-ring-inset: ;--tw-ring-offset-width:0px;--tw-ring-offset-color:#fff;--tw-ring-color:rgb(59 130 246 / 0.5);--tw-ring-offset-shadow:0 0 #0000;--tw-ring-shadow:0 0 #0000;--tw-shadow:0 0 #0000;--tw-shadow-colored:0 0 #0000;--tw-blur: ;--tw-brightness: ;--tw-contrast: ;--tw-grayscale: ;--tw-hue-rotate: ;--tw-invert: ;--tw-saturate: ;--tw-sepia: ;--tw-drop-shadow: ;--tw-backdrop-blur: ;--tw-backdrop-brightness: ;--tw-backdrop-contrast: ;--tw-backdrop-grayscale: ;--tw-backdrop-hue-rotate: ;--tw-backdrop-invert: ;--tw-backdrop-opacity: ;--tw-backdrop-saturate: ;--tw-backdrop-sepia: ;--tw-contain-size: ;--tw-contain-layout: ;--tw-contain-paint: ;--tw-contain-style: }::backdrop{--tw-border-spacing-x:0;--tw-border-spacing-y:0;--tw-translate-x:0;--tw-translate-y:0;--tw-rotate:0;--tw-skew-x:0;--tw-skew-y:0;--tw-scale-x:1;--tw-scale-y:1;--tw-pan-x: ;--tw-pan-y: ;--tw-pinch-zoom: ;--tw-scroll-snap-strictness:proximity;--tw-gradient-from-position: ;--tw-gradient-via-position: ;--tw-gradient-to-position: ;--tw-ordinal: ;--tw-slashed-zero: ;--tw-numeric-figure: ;--tw-numeric-spacing: ;--tw-numeric-fraction: ;--tw-ring-inset: ;--tw-ring-offset-width:0px;--tw-ring-offset-color:#fff;--tw-ring-color:rgb(59 130 246 / 0.5);--tw-ring-offset-shadow:0 0 #0000;--tw-ring-shadow:0 0 #0000;--tw-shadow:0 0 #0000;--tw-shadow-colored:0 0 #0000;--tw-blur: ;--tw-brightness: ;--tw-contrast: ;--tw-grayscale: ;--tw-hue-rotate: ;--tw-invert: ;--tw-saturate: ;--tw-sepia: ;--tw-drop-shadow: ;--tw-backdrop-blur: ;--tw-backdrop-brightness: ;--tw-backdrop-contrast: ;--tw-backdrop-grayscale: ;--tw-backdrop-hue-rotate: ;--tw-backdrop-invert: ;--tw-backdrop-opacity: ;--tw-backdrop-saturate: ;--tw-backdrop-sepia: ;--tw-contain-size: ;--tw-contain-layout: ;--tw-contain-paint: ;--tw-contain-style: }/* ! tailwindcss v3.4.17 | MIT License | https://tailwindcss.com */*,::after,::before{box-sizing:border-box;border-width:0;border-style:solid;border-color:#e5e7eb}::after,::before{--tw-content:''}:host,html{line-height:1.5;-webkit-text-size-adjust:100%;-moz-tab-size:4;tab-size:4;font-family:Cairo, Tajawal, sans-serif;font-feature-settings:normal;font-variation-settings:normal;-webkit-tap-highlight-color:transparent}body{margin:0;line-height:inherit}hr{height:0;color:inherit;border-top-width:1px}abbr:where([title]){-webkit-text-decoration:underline dotted;text-decoration:underline dotted}h1,h2,h3,h4,h5,h6{font-size:inherit;font-weight:inherit}a{color:inherit;text-decoration:inherit}b,strong{font-weight:bolder}code,kbd,pre,samp{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;font-feature-settings:normal;font-variation-settings:normal;font-size:1em}small{font-size:80%}sub,sup{font-size:75%;line-height:0;position:relative;vertical-align:baseline}sub{bottom:-.25em}sup{top:-.5em}table{text-indent:0;border-color:inherit;border-collapse:collapse}button,input,optgroup,select,textarea{font-family:inherit;font-feature-settings:inherit;font-variation-settings:inherit;font-size:100%;font-weight:inherit;line-height:inherit;letter-spacing:inherit;color:inherit;margin:0;padding:0}button,select{text-transform:none}button,input:where([type=button]),input:where([type=reset]),input:where([type=submit]){-webkit-appearance:button;background-color:transparent;background-image:none}:-moz-focusring{outline:auto}:-moz-ui-invalid{box-shadow:none}progress{vertical-align:baseline}::-webkit-inner-spin-button,::-webkit-outer-spin-button{height:auto}[type=search]{-webkit-appearance:textfield;outline-offset:-2px}::-webkit-search-decoration{-webkit-appearance:none}::-webkit-file-upload-button{-webkit-appearance:button;font:inherit}summary{display:list-item}blockquote,dd,dl,figure,h1,h2,h3,h4,h5,h6,hr,p,pre{margin:0}fieldset{margin:0;padding:0}legend{padding:0}menu,ol,ul{list-style:none;margin:0;padding:0}dialog{padding:0}textarea{resize:vertical}input::placeholder,textarea::placeholder{opacity:1;color:#9ca3af}[role=button],button{cursor:pointer}:disabled{cursor:default}audio,canvas,embed,iframe,img,object,svg,video{display:block;vertical-align:middle}img,video{max-width:100%;height:auto}[hidden]:where(:not([hidden=until-found])){display:none}.pointer-events-none{pointer-events:none}.fixed{position:fixed}.absolute{position:absolute}.relative{position:relative}.sticky{position:sticky}.inset-0{inset:0px}.bottom-5{bottom:1.25rem}.left-3{left:0.75rem}.left-5{left:1.25rem}.right-3{right:0.75rem}.top-0{top:0px}.top-1\/2{top:50%}.z-30{z-index:30}.z-40{z-index:40}.z-50{z-index:50}.mx-auto{margin-left:auto;margin-right:auto}.my-auto{margin-top:auto;margin-bottom:auto}.my-0\.5{margin-top:0.125rem;margin-bottom:0.125rem}.mb-1{margin-bottom:0.25rem}.mb-3{margin-bottom:0.75rem}.mt-0\.5{margin-top:0.125rem}.mt-1{margin-top:0.25rem}.mt-1\.5{margin-top:0.375rem}.mt-4{margin-top:1rem}.mt-8{margin-top:2rem}.block{display:block}.flex{display:flex}.inline-flex{display:inline-flex}.grid{display:grid}.hidden{display:none}.h-14{height:3.5rem}.h-2{height:0.5rem}.h-3{height:0.75rem}.h-3\.5{height:0.875rem}.h-4{height:1rem}.h-5{height:1.25rem}.h-6{height:1.5rem}.h-8{height:2rem}.h-20{height:5rem}.h-24{height:6rem}.max-h-\[75vh\]{max-height:75vh}.min-h-screen{min-height:100vh}.w-14{width:3.5rem}.w-2{width:0.5rem}.w-3{width:0.75rem}.w-3\.5{width:0.875rem}.w-4{width:1rem}.w-5{width:1.25rem}.w-6{width:1.5rem}.w-8{width:2rem}.w-full{width:100%}.min-w-\[110px\]{min-width:110px}.min-w-\[130px\]{min-width:130px}.min-w-\[180px\]{min-width:180px}.max-w-2xl{max-width:42rem}.max-w-7xl{max-width:80rem}.max-w-lg{max-width:32rem}.max-w-md{max-width:28rem}.max-w-sm{max-width:24rem}.flex-1{flex:1 1 0%}.shrink-0{flex-shrink:0}.flex-grow{flex-grow:1}.border-collapse{border-collapse:collapse}.-translate-y-1\/2{--tw-translate-y:-50%;transform:translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y))}@keyframes ping{75%, 100%{transform:scale(2);opacity:0}}.animate-ping{animation:ping 1s cubic-bezier(0, 0, 0.2, 1) infinite}@keyframes spin{to{transform:rotate(360deg)}}.animate-spin{animation:spin 1s linear infinite}.cursor-pointer{cursor:pointer}.select-none{-webkit-user-select:none;user-select:none}.grid-cols-1{grid-template-columns:repeat(1, minmax(0, 1fr))}.grid-cols-5{grid-template-columns:repeat(5, minmax(0, 1fr))}.flex-col{flex-direction:column}.flex-col-reverse{flex-direction:column-reverse}.flex-wrap{flex-wrap:wrap}.items-start{align-items:flex-start}.items-center{align-items:center}.justify-end{justify-content:flex-end}.justify-center{justify-content:center}.justify-between{justify-content:space-between}.gap-1\.5{gap:0.375rem}.gap-2{gap:0.5rem}.gap-2\.5{gap:0.625rem}.gap-3{gap:0.75rem}.gap-4{gap:1rem}.gap-1{gap:0.25rem}.space-y-1 > :not([hidden]) ~ :not([hidden]){--tw-space-y-reverse:0;margin-top:calc(0.25rem * calc(1 - var(--tw-space-y-reverse)));margin-bottom:calc(0.25rem * var(--tw-space-y-reverse))}.space-y-1\.5 > :not([hidden]) ~ :not([hidden]){--tw-space-y-reverse:0;margin-top:calc(0.375rem * calc(1 - var(--tw-space-y-reverse)));margin-bottom:calc(0.375rem * var(--tw-space-y-reverse))}.space-y-2 > :not([hidden]) ~ :not([hidden]){--tw-space-y-reverse:0;margin-top:calc(0.5rem * calc(1 - var(--tw-space-y-reverse)));margin-bottom:calc(0.5rem * var(--tw-space-y-reverse))}.space-y-2\.5 > :not([hidden]) ~ :not([hidden]){--tw-space-y-reverse:0;margin-top:calc(0.625rem * calc(1 - var(--tw-space-y-reverse)));margin-bottom:calc(0.625rem * var(--tw-space-y-reverse))}.space-y-3 > :not([hidden]) ~ :not([hidden]){--tw-space-y-reverse:0;margin-top:calc(0.75rem * calc(1 - var(--tw-space-y-reverse)));margin-bottom:calc(0.75rem * var(--tw-space-y-reverse))}.space-y-4 > :not([hidden]) ~ :not([hidden]){--tw-space-y-reverse:0;margin-top:calc(1rem * calc(1 - var(--tw-space-y-reverse)));margin-bottom:calc(1rem * var(--tw-space-y-reverse))}.space-y-6 > :not([hidden]) ~ :not([hidden]){--tw-space-y-reverse:0;margin-top:calc(1.5rem * calc(1 - var(--tw-space-y-reverse)));margin-bottom:calc(1.5rem * var(--tw-space-y-reverse))}.divide-y > :not([hidden]) ~ :not([hidden]){--tw-divide-y-reverse:0;border-top-width:calc(1px * calc(1 - var(--tw-divide-y-reverse)));border-bottom-width:calc(1px * var(--tw-divide-y-reverse))}.divide-slate-200 > :not([hidden]) ~ :not([hidden]){--tw-divide-opacity:1;border-color:rgb(226 232 240 / var(--tw-divide-opacity, 1))}.overflow-hidden{overflow:hidden}.overflow-x-auto{overflow-x:auto}.overflow-y-auto{overflow-y:auto}.rounded{border-radius:0.25rem}.rounded-2xl{border-radius:1rem}.rounded-full{border-radius:9999px}.rounded-lg{border-radius:0.5rem}.rounded-xl{border-radius:0.75rem}.border{border-width:1px}.border-2{border-width:2px}.border-b{border-bottom-width:1px}.border-b-4{border-bottom-width:4px}.border-r-4{border-right-width:4px}.border-t{border-top-width:1px}.border-academic-200{--tw-border-opacity:1;border-color:rgb(188 204 220 / var(--tw-border-opacity, 1))}.border-academic-800{--tw-border-opacity:1;border-color:rgb(36 59 83 / var(--tw-border-opacity, 1))}.border-amber-200{--tw-border-opacity:1;border-color:rgb(253 230 138 / var(--tw-border-opacity, 1))}.border-amber-300{--tw-border-opacity:1;border-color:rgb(252 211 77 / var(--tw-border-opacity, 1))}.border-amber-500{--tw-border-opacity:1;border-color:rgb(245 158 11 / var(--tw-border-opacity, 1))}.border-gold-500{--tw-border-opacity:1;border-color:rgb(197 155 39 / var(--tw-border-opacity, 1))}.border-red-200{--tw-border-opacity:1;border-color:rgb(254 202 202 / var(--tw-border-opacity, 1))}.border-red-600{--tw-border-opacity:1;border-color:rgb(220 38 38 / var(--tw-border-opacity, 1))}.border-slate-100{--tw-border-opacity:1;border-color:rgb(241 245 249 / var(--tw-border-opacity, 1))}.border-slate-200{--tw-border-opacity:1;border-color:rgb(226 232 240 / var(--tw-border-opacity, 1))}.border-slate-300{--tw-border-opacity:1;border-color:rgb(203 213 225 / var(--tw-border-opacity, 1))}.border-slate-400{--tw-border-opacity:1;border-color:rgb(148 163 184 / var(--tw-border-opacity, 1))}.border-white\/20{border-color:rgb(255 255 255 / 0.2)}.border-emerald-500\/80{border-color:rgb(16 185 129 / 0.8)}.border-rose-100{--tw-border-opacity:1;border-color:rgb(255 228 230 / var(--tw-border-opacity, 1))}.bg-academic-100{--tw-bg-opacity:1;background-color:rgb(217 226 236 / var(--tw-bg-opacity, 1))}.bg-academic-50{--tw-bg-opacity:1;background-color:rgb(240 244 248 / var(--tw-bg-opacity, 1))}.bg-academic-800{--tw-bg-opacity:1;background-color:rgb(36 59 83 / var(--tw-bg-opacity, 1))}.bg-academic-900{--tw-bg-opacity:1;background-color:rgb(16 42 67 / var(--tw-bg-opacity, 1))}.bg-amber-50{--tw-bg-opacity:1;background-color:rgb(255 251 235 / var(--tw-bg-opacity, 1))}.bg-amber-600{--tw-bg-opacity:1;background-color:rgb(217 119 6 / var(--tw-bg-opacity, 1))}.bg-emerald-400{--tw-bg-opacity:1;background-color:rgb(52 211 153 / var(--tw-bg-opacity, 1))}.bg-emerald-500{--tw-bg-opacity:1;background-color:rgb(16 185 129 / var(--tw-bg-opacity, 1))}.bg-emerald-700{--tw-bg-opacity:1;background-color:rgb(4 120 87 / var(--tw-bg-opacity, 1))}.bg-gold-500{--tw-bg-opacity:1;background-color:rgb(197 155 39 / var(--tw-bg-opacity, 1))}.bg-red-100{--tw-bg-opacity:1;background-color:rgb(254 226 226 / var(--tw-bg-opacity, 1))}.bg-red-50{--tw-bg-opacity:1;background-color:rgb(254 242 242 / var(--tw-bg-opacity, 1))}.bg-red-600{--tw-bg-opacity:1;background-color:rgb(220 38 38 / var(--tw-bg-opacity, 1))}.bg-rose-200{--tw-bg-opacity:1;background-color:rgb(254 205 211 / var(--tw-bg-opacity, 1))}.bg-slate-100{--tw-bg-opacity:1;background-color:rgb(241 245 249 / var(--tw-bg-opacity, 1))}.bg-slate-200{--tw-bg-opacity:1;background-color:rgb(226 232 240 / var(--tw-bg-opacity, 1))}.bg-slate-50{--tw-bg-opacity:1;background-color:rgb(248 250 252 / var(--tw-bg-opacity, 1))}.bg-slate-700{--tw-bg-opacity:1;background-color:rgb(51 65 85 / var(--tw-bg-opacity, 1))}.bg-slate-900\/70{background-color:rgb(15 23 42 / 0.7)}.bg-slate-900\/75{background-color:rgb(15 23 42 / 0.75)}.bg-white{--tw-bg-opacity:1;background-color:rgb(255 255 255 / var(--tw-bg-opacity, 1))}.bg-white\/10{background-color:rgb(255 255 255 / 0.1)}.bg-white\/20{background-color:rgb(255 255 255 / 0.2)}.bg-emerald-100{--tw-bg-opacity:1;background-color:rgb(209 250 229 / var(--tw-bg-opacity, 1))}.bg-rose-50\/60{background-color:rgb(255 241 242 / 0.6)}.bg-gradient-to-l{background-image:linear-gradient(to left, var(--tw-gradient-stops))}.from-academic-900{--tw-gradient-from:#102a43 var(--tw-gradient-from-position);--tw-gradient-to:rgb(16 42 67 / 0) var(--tw-gradient-to-position);--tw-gradient-stops:var(--tw-gradient-from), var(--tw-gradient-to)}.via-academic-800{--tw-gradient-to:rgb(36 59 83 / 0)  var(--tw-gradient-to-position);--tw-gradient-stops:var(--tw-gradient-from), #243b53 var(--tw-gradient-via-position), var(--tw-gradient-to)}.to-academic-900{--tw-gradient-to:#102a43 var(--tw-gradient-to-position)}.p-1{padding:0.25rem}.p-1\.5{padding:0.375rem}.p-2{padding:0.5rem}.p-2\.5{padding:0.625rem}.p-3{padding:0.75rem}.p-3\.5{padding:0.875rem}.p-4{padding:1rem}.p-6{padding:1.5rem}.px-10{padding-left:2.5rem;padding-right:2.5rem}.px-2\.5{padding-left:0.625rem;padding-right:0.625rem}.px-3{padding-left:0.75rem;padding-right:0.75rem}.px-3\.5{padding-left:0.875rem;padding-right:0.875rem}.px-4{padding-left:1rem;padding-right:1rem}.px-5{padding-left:1.25rem;padding-right:1.25rem}.px-6{padding-left:1.5rem;padding-right:1.5rem}.py-1\.5{padding-top:0.375rem;padding-bottom:0.375rem}.py-2{padding-top:0.5rem;padding-bottom:0.5rem}.py-2\.5{padding-top:0.625rem;padding-bottom:0.625rem}.py-3{padding-top:0.75rem;padding-bottom:0.75rem}.py-4{padding-top:1rem;padding-bottom:1rem}.py-5{padding-top:1.25rem;padding-bottom:1.25rem}.py-6{padding-top:1.5rem;padding-bottom:1.5rem}.px-2{padding-left:0.5rem;padding-right:0.5rem}.py-0\.5{padding-top:0.125rem;padding-bottom:0.125rem}.pl-3{padding-left:0.75rem}.pr-9{padding-right:2.25rem}.pt-1{padding-top:0.25rem}.pt-2{padding-top:0.5rem}.text-left{text-align:left}.text-center{text-align:center}.text-right{text-align:right}.font-mono{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace}.text-2xl{font-size:1.5rem;line-height:2rem}.text-\[11px\]{font-size:11px}.text-base{font-size:1rem;line-height:1.5rem}.text-lg{font-size:1.125rem;line-height:1.75rem}.text-sm{font-size:0.875rem;line-height:1.25rem}.text-xl{font-size:1.25rem;line-height:1.75rem}.text-xs{font-size:0.75rem;line-height:1rem}.text-\[10px\]{font-size:10px}.font-bold{font-weight:700}.font-extrabold{font-weight:800}.font-medium{font-weight:500}.font-semibold{font-weight:600}.leading-relaxed{line-height:1.625}.tracking-tight{letter-spacing:-0.025em}.tracking-wider{letter-spacing:0.05em}.tracking-widest{letter-spacing:0.1em}.text-academic-200{--tw-text-opacity:1;color:rgb(188 204 220 / var(--tw-text-opacity, 1))}.text-academic-600{--tw-text-opacity:1;color:rgb(72 101 129 / var(--tw-text-opacity, 1))}.text-academic-800{--tw-text-opacity:1;color:rgb(36 59 83 / var(--tw-text-opacity, 1))}.text-academic-900{--tw-text-opacity:1;color:rgb(16 42 67 / var(--tw-text-opacity, 1))}.text-amber-800{--tw-text-opacity:1;color:rgb(146 64 14 / var(--tw-text-opacity, 1))}.text-amber-900{--tw-text-opacity:1;color:rgb(120 53 15 / var(--tw-text-opacity, 1))}.text-emerald-100{--tw-text-opacity:1;color:rgb(209 250 229 / var(--tw-text-opacity, 1))}.text-emerald-300{--tw-text-opacity:1;color:rgb(110 231 183 / var(--tw-text-opacity, 1))}.text-gold-500{--tw-text-opacity:1;color:rgb(197 155 39 / var(--tw-text-opacity, 1))}.text-red-500{--tw-text-opacity:1;color:rgb(239 68 68 / var(--tw-text-opacity, 1))}.text-red-600{--tw-text-opacity:1;color:rgb(220 38 38 / var(--tw-text-opacity, 1))}.text-red-800{--tw-text-opacity:1;color:rgb(153 27 27 / var(--tw-text-opacity, 1))}.text-slate-400{--tw-text-opacity:1;color:rgb(148 163 184 / var(--tw-text-opacity, 1))}.text-slate-500{--tw-text-opacity:1;color:rgb(100 116 139 / var(--tw-text-opacity, 1))}.text-slate-600{--tw-text-opacity:1;color:rgb(71 85 105 / var(--tw-text-opacity, 1))}.text-slate-700{--tw-text-opacity:1;color:rgb(51 65 85 / var(--tw-text-opacity, 1))}.text-slate-800{--tw-text-opacity:1;color:rgb(30 41 59 / var(--tw-text-opacity, 1))}.text-slate-900{--tw-text-opacity:1;color:rgb(15 23 42 / var(--tw-text-opacity, 1))}.text-white{--tw-text-opacity:1;color:rgb(255 255 255 / var(--tw-text-opacity, 1))}.text-white\/70{color:rgb(255 255 255 / 0.7)}.text-emerald-800{--tw-text-opacity:1;color:rgb(6 95 70 / var(--tw-text-opacity, 1))}.text-rose-300{--tw-text-opacity:1;color:rgb(253 164 175 / var(--tw-text-opacity, 1))}.text-slate-300{--tw-text-opacity:1;color:rgb(203 213 225 / var(--tw-text-opacity, 1))}.line-through{-webkit-text-decoration-line:line-through;text-decoration-line:line-through}.antialiased{-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}.shadow-2xl{--tw-shadow:0 25px 50px -12px rgb(0 0 0 / 0.25);--tw-shadow-colored:0 25px 50px -12px var(--tw-shadow-color);box-shadow:var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow)}.shadow-lg{--tw-shadow:0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);--tw-shadow-colored:0 10px 15px -3px var(--tw-shadow-color), 0 4px 6px -4px var(--tw-shadow-color);box-shadow:var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow)}.shadow-md{--tw-shadow:0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);--tw-shadow-colored:0 4px 6px -1px var(--tw-shadow-color), 0 2px 4px -2px var(--tw-shadow-color);box-shadow:var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow)}.shadow-sm{--tw-shadow:0 1px 2px 0 rgb(0 0 0 / 0.05);--tw-shadow-colored:0 1px 2px 0 var(--tw-shadow-color);box-shadow:var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow)}.backdrop-blur-sm{--tw-backdrop-blur:blur(4px);-webkit-backdrop-filter:var(--tw-backdrop-blur) var(--tw-backdrop-brightness) var(--tw-backdrop-contrast) var(--tw-backdrop-grayscale) var(--tw-backdrop-hue-rotate) var(--tw-backdrop-invert) var(--tw-backdrop-opacity) var(--tw-backdrop-saturate) var(--tw-backdrop-sepia);backdrop-filter:var(--tw-backdrop-blur) var(--tw-backdrop-brightness) var(--tw-backdrop-contrast) var(--tw-backdrop-grayscale) var(--tw-backdrop-hue-rotate) var(--tw-backdrop-invert) var(--tw-backdrop-opacity) var(--tw-backdrop-saturate) var(--tw-backdrop-sepia)}.transition{transition-property:color, background-color, border-color, fill, stroke, opacity, box-shadow, transform, filter, -webkit-text-decoration-color, -webkit-backdrop-filter;transition-property:color, background-color, border-color, text-decoration-color, fill, stroke, opacity, box-shadow, transform, filter, backdrop-filter;transition-property:color, background-color, border-color, text-decoration-color, fill, stroke, opacity, box-shadow, transform, filter, backdrop-filter, -webkit-text-decoration-color, -webkit-backdrop-filter;transition-timing-function:cubic-bezier(0.4, 0, 0.2, 1);transition-duration:150ms}.selection\:bg-academic-800 *::selection{--tw-bg-opacity:1;background-color:rgb(36 59 83 / var(--tw-bg-opacity, 1))}.selection\:text-white *::selection{--tw-text-opacity:1;color:rgb(255 255 255 / var(--tw-text-opacity, 1))}.selection\:bg-academic-800::selection{--tw-bg-opacity:1;background-color:rgb(36 59 83 / var(--tw-bg-opacity, 1))}.selection\:text-white::selection{--tw-text-opacity:1;color:rgb(255 255 255 / var(--tw-text-opacity, 1))}.hover\:border-academic-800:hover{--tw-border-opacity:1;border-color:rgb(36 59 83 / var(--tw-border-opacity, 1))}.hover\:bg-academic-100:hover{--tw-bg-opacity:1;background-color:rgb(217 226 236 / var(--tw-bg-opacity, 1))}.hover\:bg-academic-900:hover{--tw-bg-opacity:1;background-color:rgb(16 42 67 / var(--tw-bg-opacity, 1))}.hover\:bg-emerald-800:hover{--tw-bg-opacity:1;background-color:rgb(6 95 70 / var(--tw-bg-opacity, 1))}.hover\:bg-gold-600:hover{--tw-bg-opacity:1;background-color:rgb(166 127 25 / var(--tw-bg-opacity, 1))}.hover\:bg-red-600:hover{--tw-bg-opacity:1;background-color:rgb(220 38 38 / var(--tw-bg-opacity, 1))}.hover\:bg-red-700:hover{--tw-bg-opacity:1;background-color:rgb(185 28 28 / var(--tw-bg-opacity, 1))}.hover\:bg-slate-100:hover{--tw-bg-opacity:1;background-color:rgb(241 245 249 / var(--tw-bg-opacity, 1))}.hover\:bg-slate-50:hover{--tw-bg-opacity:1;background-color:rgb(248 250 252 / var(--tw-bg-opacity, 1))}.hover\:bg-slate-800:hover{--tw-bg-opacity:1;background-color:rgb(30 41 59 / var(--tw-bg-opacity, 1))}.hover\:bg-white\/20:hover{background-color:rgb(255 255 255 / 0.2)}.hover\:bg-academic-50:hover{--tw-bg-opacity:1;background-color:rgb(240 244 248 / var(--tw-bg-opacity, 1))}.hover\:text-academic-800:hover{--tw-text-opacity:1;color:rgb(36 59 83 / var(--tw-text-opacity, 1))}.hover\:text-white:hover{--tw-text-opacity:1;color:rgb(255 255 255 / var(--tw-text-opacity, 1))}.focus\:outline-none:focus{outline:2px solid transparent;outline-offset:2px}.focus\:ring-2:focus{--tw-ring-offset-shadow:var(--tw-ring-inset) 0 0 0 var(--tw-ring-offset-width) var(--tw-ring-offset-color);--tw-ring-shadow:var(--tw-ring-inset) 0 0 0 calc(2px + var(--tw-ring-offset-width)) var(--tw-ring-color);box-shadow:var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow, 0 0 #0000)}.focus\:ring-academic-600:focus{--tw-ring-opacity:1;--tw-ring-color:rgb(72 101 129 / var(--tw-ring-opacity, 1))}.focus\:ring-red-500:focus{--tw-ring-opacity:1;--tw-ring-color:rgb(239 68 68 / var(--tw-ring-opacity, 1))}.disabled\:cursor-not-allowed:disabled{cursor:not-allowed}.disabled\:opacity-40:disabled{opacity:0.4}.group:hover .group-hover\:bg-academic-800{--tw-bg-opacity:1;background-color:rgb(36 59 83 / var(--tw-bg-opacity, 1))}.group:hover .group-hover\:text-academic-900{--tw-text-opacity:1;color:rgb(16 42 67 / var(--tw-text-opacity, 1))}.group:hover .group-hover\:text-white{--tw-text-opacity:1;color:rgb(255 255 255 / var(--tw-text-opacity, 1))}@media (min-width: 640px){.sm\:block{display:block}.sm\:flex{display:flex}.sm\:h-24{height:6rem}.sm\:w-80{width:20rem}.sm\:w-auto{width:auto}.sm\:grid-cols-2{grid-template-columns:repeat(2, minmax(0, 1fr))}.sm\:grid-cols-3{grid-template-columns:repeat(3, minmax(0, 1fr))}.sm\:grid-cols-7{grid-template-columns:repeat(7, minmax(0, 1fr))}.sm\:flex-row{flex-direction:row}.sm\:justify-start{justify-content:flex-start}.sm\:gap-3{gap:0.75rem}.sm\:p-4{padding:1rem}.sm\:p-5{padding:1.25rem}.sm\:p-6{padding:1.5rem}.sm\:px-0{padding-left:0px;padding-right:0px}.sm\:px-6{padding-left:1.5rem;padding-right:1.5rem}.sm\:text-right{text-align:right}.sm\:text-2xl{font-size:1.5rem;line-height:2rem}.sm\:text-base{font-size:1rem;line-height:1.5rem}.sm\:text-lg{font-size:1.125rem;line-height:1.75rem}.sm\:text-sm{font-size:0.875rem;line-height:1.25rem}.sm\:text-xl{font-size:1.25rem;line-height:1.75rem}.sm\:text-xs{font-size:0.75rem;line-height:1rem}}@media (min-width: 1024px){.lg\:px-8{padding-left:2rem;padding-right:2rem}}</style></head>
+<body class="text-slate-800 antialiased selection:bg-academic-800 selection:text-white min-h-screen flex flex-col">
+
+    <!-- الشريط العلوي الرسمي -->
+    <header class="bg-gradient-to-l from-academic-900 via-academic-800 to-academic-900 text-white shadow-lg border-b-4 border-gold-500 sticky top-0 z-30">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+            <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
+                <div class="flex items-center gap-3 text-center sm:text-right">
+                    <div class="bg-white/10 p-2.5 rounded-xl border border-white/20 backdrop-blur-sm hidden sm:flex">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="graduation-cap" aria-hidden="true" class="lucide lucide-graduation-cap w-8 h-8 text-gold-500"><path d="M21.42 10.922a1 1 0 0 0-.019-1.838L12.83 5.18a2 2 0 0 0-1.66 0L2.6 9.08a1 1 0 0 0 0 1.832l8.57 3.908a2 2 0 0 0 1.66 0z"></path><path d="M22 10v6"></path><path d="M6 12.5V16a6 3 0 0 0 12 0v-3.5"></path></svg>
+                    </div>
+                    <div>
+                        <h1 class="text-lg sm:text-2xl font-bold tracking-tight text-white">
+                            نظام حجز مواعيد المناقشات العلمية - الدراسات العليا
+                        </h1>
+                        <p class="text-xs sm:text-sm text-academic-200 flex items-center justify-center sm:justify-start gap-2 mt-0.5">
+                            <span class="inline-flex items-center gap-1.5 text-emerald-300 font-medium">
+                                <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
+                                مزامنة فورية مباشرة
+                            </span>
+                            <span>•</span>
+                            <span>أيام العمل: الأحد إلى الخميس</span>
+                        </p>
+                    </div>
+                </div>
+
+                <!-- أزرار التحكم العلوية -->
+                <div class="flex items-center gap-2.5 w-full sm:w-auto justify-center">
+                    <button id="btn-share-link" onclick="openShareModal()" class="flex items-center gap-2 bg-white/10 hover:bg-white/20 text-white px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold border border-white/20 transition cursor-pointer">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="share-2" aria-hidden="true" class="lucide lucide-share-2 w-4 h-4 text-gold-500"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" x2="15.42" y1="13.51" y2="17.49"></line><line x1="15.41" x2="8.59" y1="6.51" y2="10.49"></line></svg>
+                        <span>مشاركة الرابط للطلاب</span>
+                    </button>
+                    <button id="btn-admin-open" onclick="openAdminGate()" class="flex items-center gap-2 bg-gold-500 hover:bg-gold-600 text-academic-900 px-4 py-2 rounded-xl text-xs sm:text-sm font-bold shadow-md transition cursor-pointer">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="shield-check" aria-hidden="true" class="lucide lucide-shield-check w-4 h-4"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"></path><path d="m9 12 2 2 4-4"></path></svg>
+                        <span>إدارة الحجوزات</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- المحتوى الرئيسي -->
+    <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+
+        <!-- تنبيه هام وبارز -->
+        <div class="bg-amber-50 border-r-4 border-red-600 rounded-2xl p-4 sm:p-5 shadow-sm border border-amber-200 flex items-start gap-4">
+            <div class="bg-red-100 p-2.5 rounded-xl text-red-600 shrink-0 mt-0.5">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="alert-triangle" aria-hidden="true" class="lucide lucide-alert-triangle w-6 h-6"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"></path><path d="M12 9v4"></path><path d="M12 17h.01"></path></svg>
+            </div>
+            <div class="space-y-1">
+                <h2 class="text-base sm:text-lg font-extrabold text-red-800 flex items-center gap-2">
+                    تنبيه هام وإلزامي لجميع الباحثين
+                </h2>
+                <p class="text-sm sm:text-base font-bold text-slate-800 leading-relaxed">
+                    "سيتم إلغاء الحجز تلقائياً إذا تم قبل وصول التقارير الفردية للسادة المحكمين إلى الأستاذ الدكتور وكيل المعهد للدراسات العليا."
+                </p>
+                <p class="text-xs text-slate-600">
+                    يُرجى التأكد التام من استلام مكتب الدراسات العليا لجميع التقارير الفردية قبل اختيار اليوم وتأكيد الحجز، حيث يختفي اليوم المحجوز من التقويم فور إتمام العملية.
+                </p>
+            </div>
+        </div>
+
+        <!-- حاوية رسائل التنبيه الديناميكية (بديل alert) -->
+        <div id="toast-container" class="fixed bottom-5 left-5 z-50 flex flex-col gap-2 max-w-sm w-full pointer-events-none px-4 sm:px-0"></div>
+
+        <!-- قسم التقويم التفاعلي للباحثين -->
+        <section id="researcher-view" class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+            <!-- شريط التنقل بين الأشهر -->
+            <div class="bg-academic-50 px-4 sm:px-6 py-4 border-b border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-4">
+                <div class="flex items-center gap-3">
+                    <button id="prev-month-btn" onclick="changeMonth(-1)" class="p-2.5 rounded-xl bg-white border border-slate-300 text-academic-800 hover:bg-academic-100 disabled:opacity-40 disabled:cursor-not-allowed transition shadow-xs" title="الشهر السابق" disabled="">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="chevron-right" aria-hidden="true" class="lucide lucide-chevron-right w-5 h-5"><path d="m9 18 6-6-6-6"></path></svg>
+                    </button>
+                    <div class="text-center min-w-[180px]">
+                        <h2 id="current-month-label" class="text-xl sm:text-2xl font-extrabold text-academic-900">شهر نوفمبر</h2>
+                        <span id="current-year-label" class="text-xs font-semibold text-academic-600">2026 ميلادية</span>
+                    </div>
+                    <button id="next-month-btn" onclick="changeMonth(1)" class="p-2.5 rounded-xl bg-white border border-slate-300 text-academic-800 hover:bg-academic-100 transition shadow-xs" title="الشهر التالي">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="chevron-left" aria-hidden="true" class="lucide lucide-chevron-left w-5 h-5"><path d="m15 18-6-6 6-6"></path></svg>
+                    </button>
+                </div>
+
+                <!-- دليل الألوان والحالة -->
+                <div class="flex flex-wrap items-center justify-center gap-4 text-xs sm:text-sm">
+                    <div class="flex items-center gap-2 bg-white px-3 py-1.5 rounded-lg border border-slate-200">
+                        <span class="w-3 h-3 rounded-full bg-emerald-500"></span>
+                        <span class="font-semibold text-slate-700">متاح للحجز (انقر للاختيار)</span>
+                    </div>
+                    <div class="flex items-center gap-2 bg-white px-3 py-1.5 rounded-lg border border-slate-200">
+                        <span class="w-3 h-3 rounded-full bg-slate-200 border border-slate-300"></span>
+                        <span class="text-slate-500">محجوز / غير متاح (مُخفى)</span>
+                    </div>
+                    <div class="flex items-center gap-2 bg-white px-3 py-1.5 rounded-lg border border-slate-200">
+                        <span class="w-3 h-3 rounded-full bg-rose-200"></span>
+                        <span class="text-slate-500">عطلة نهاية الأسبوع (الجمعة والسبت)</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- حالة التحميل السحابي -->
+            <div id="sync-loading-bar" class="bg-academic-800 text-white text-xs py-1.5 px-4 text-center flex items-center justify-center gap-2 hidden">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="refresh-cw" aria-hidden="true" class="lucide lucide-refresh-cw w-3.5 h-3.5 animate-spin"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"></path><path d="M21 3v5h-5"></path><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"></path><path d="M8 16H3v5"></path></svg>
+                <span>جاري المزامنة اللحظية للمواعيد المتاحة...</span>
+            </div>
+
+            <!-- شبكة التقويم (أيام الأسبوع من الأحد إلى الخميس بشكل بارز + عطلة نهاية الأسبوع) -->
+            <div class="p-4 sm:p-6">
+                <!-- ترويسة أيام الأسبوع -->
+                <div class="grid grid-cols-5 sm:grid-cols-7 gap-2 sm:gap-3 mb-3 text-center">
+                    <div class="py-2 bg-academic-800 text-white rounded-xl font-bold text-xs sm:text-sm">الأحد</div>
+                    <div class="py-2 bg-academic-800 text-white rounded-xl font-bold text-xs sm:text-sm">الإثنين</div>
+                    <div class="py-2 bg-academic-800 text-white rounded-xl font-bold text-xs sm:text-sm">الثلاثاء</div>
+                    <div class="py-2 bg-academic-800 text-white rounded-xl font-bold text-xs sm:text-sm">الأربعاء</div>
+                    <div class="py-2 bg-academic-800 text-white rounded-xl font-bold text-xs sm:text-sm">الخميس</div>
+                    <div class="hidden sm:block py-2 bg-slate-100 text-slate-400 rounded-xl font-semibold text-xs sm:text-sm">الجمعة (عطلة)</div>
+                    <div class="hidden sm:block py-2 bg-slate-100 text-slate-400 rounded-xl font-semibold text-xs sm:text-sm">السبت (عطلة)</div>
+                </div>
+
+                <!-- خلايا الأيام -->
+                <div id="calendar-grid" class="grid grid-cols-5 sm:grid-cols-7 gap-2 sm:gap-3"><div class="h-20 sm:h-24 rounded-xl bg-slate-50 border border-slate-100 flex flex-col items-center justify-center text-slate-300 select-none">
+                        <span class="text-base font-bold line-through">1</span>
+                        <span class="text-[10px] mt-1">مضى</span>
+                    </div><div class="h-20 sm:h-24 rounded-xl bg-slate-50 border border-slate-100 flex flex-col items-center justify-center text-slate-300 select-none">
+                        <span class="text-base font-bold line-through">2</span>
+                        <span class="text-[10px] mt-1">مضى</span>
+                    </div><div class="h-20 sm:h-24 rounded-xl bg-slate-50 border border-slate-100 flex flex-col items-center justify-center text-slate-300 select-none">
+                        <span class="text-base font-bold line-through">3</span>
+                        <span class="text-[10px] mt-1">مضى</span>
+                    </div><div class="h-20 sm:h-24 rounded-xl bg-slate-50 border border-slate-100 flex flex-col items-center justify-center text-slate-300 select-none">
+                        <span class="text-base font-bold line-through">4</span>
+                        <span class="text-[10px] mt-1">مضى</span>
+                    </div><div class="h-20 sm:h-24 rounded-xl bg-slate-50 border border-slate-100 flex flex-col items-center justify-center text-slate-300 select-none">
+                        <span class="text-base font-bold line-through">5</span>
+                        <span class="text-[10px] mt-1">مضى</span>
+                    </div><div class="hidden sm:flex flex-col items-center justify-center h-24 rounded-xl bg-rose-50/60 border border-rose-100 text-rose-300 select-none">
+                        <span class="text-base font-bold">6</span>
+                        <span class="text-[11px] mt-1">عطلة أسبوعية</span>
+                    </div><div class="hidden sm:flex flex-col items-center justify-center h-24 rounded-xl bg-rose-50/60 border border-rose-100 text-rose-300 select-none">
+                        <span class="text-base font-bold">7</span>
+                        <span class="text-[11px] mt-1">عطلة أسبوعية</span>
+                    </div><div class="h-20 sm:h-24 rounded-xl bg-slate-50 border border-slate-100 flex flex-col items-center justify-center text-slate-300 select-none">
+                        <span class="text-base font-bold line-through">8</span>
+                        <span class="text-[10px] mt-1">مضى</span>
+                    </div><div class="h-20 sm:h-24 rounded-xl bg-slate-50 border border-slate-100 flex flex-col items-center justify-center text-slate-300 select-none">
+                        <span class="text-base font-bold line-through">9</span>
+                        <span class="text-[10px] mt-1">مضى</span>
+                    </div><div class="h-20 sm:h-24 rounded-xl bg-slate-50 border border-slate-100 flex flex-col items-center justify-center text-slate-300 select-none">
+                        <span class="text-base font-bold line-through">10</span>
+                        <span class="text-[10px] mt-1">مضى</span>
+                    </div><div class="h-20 sm:h-24 rounded-xl bg-slate-50 border border-slate-100 flex flex-col items-center justify-center text-slate-300 select-none">
+                        <span class="text-base font-bold line-through">11</span>
+                        <span class="text-[10px] mt-1">مضى</span>
+                    </div><div class="h-20 sm:h-24 rounded-xl bg-slate-50 border border-slate-100 flex flex-col items-center justify-center text-slate-300 select-none">
+                        <span class="text-base font-bold line-through">12</span>
+                        <span class="text-[10px] mt-1">مضى</span>
+                    </div><div class="hidden sm:flex flex-col items-center justify-center h-24 rounded-xl bg-rose-50/60 border border-rose-100 text-rose-300 select-none">
+                        <span class="text-base font-bold">13</span>
+                        <span class="text-[11px] mt-1">عطلة أسبوعية</span>
+                    </div><div class="hidden sm:flex flex-col items-center justify-center h-24 rounded-xl bg-rose-50/60 border border-rose-100 text-rose-300 select-none">
+                        <span class="text-base font-bold">14</span>
+                        <span class="text-[11px] mt-1">عطلة أسبوعية</span>
+                    </div><div class="h-20 sm:h-24 rounded-xl bg-slate-50 border border-slate-100 flex flex-col items-center justify-center text-slate-300 select-none">
+                        <span class="text-base font-bold line-through">15</span>
+                        <span class="text-[10px] mt-1">مضى</span>
+                    </div><div class="h-20 sm:h-24 rounded-xl bg-slate-50 border border-slate-100 flex flex-col items-center justify-center text-slate-300 select-none">
+                        <span class="text-base font-bold line-through">16</span>
+                        <span class="text-[10px] mt-1">مضى</span>
+                    </div><div class="h-20 sm:h-24 rounded-xl bg-slate-50 border border-slate-100 flex flex-col items-center justify-center text-slate-300 select-none">
+                        <span class="text-base font-bold line-through">17</span>
+                        <span class="text-[10px] mt-1">مضى</span>
+                    </div><div class="h-20 sm:h-24 rounded-xl bg-slate-50 border border-slate-100 flex flex-col items-center justify-center text-slate-300 select-none">
+                        <span class="text-base font-bold line-through">18</span>
+                        <span class="text-[10px] mt-1">مضى</span>
+                    </div><div class="h-20 sm:h-24 rounded-xl bg-slate-50 border border-slate-100 flex flex-col items-center justify-center text-slate-300 select-none">
+                        <span class="text-base font-bold line-through">19</span>
+                        <span class="text-[10px] mt-1">مضى</span>
+                    </div><div class="hidden sm:flex flex-col items-center justify-center h-24 rounded-xl bg-rose-50/60 border border-rose-100 text-rose-300 select-none">
+                        <span class="text-base font-bold">20</span>
+                        <span class="text-[11px] mt-1">عطلة أسبوعية</span>
+                    </div><div class="hidden sm:flex flex-col items-center justify-center h-24 rounded-xl bg-rose-50/60 border border-rose-100 text-rose-300 select-none">
+                        <span class="text-base font-bold">21</span>
+                        <span class="text-[11px] mt-1">عطلة أسبوعية</span>
+                    </div><button type="button" class="day-card group h-20 sm:h-24 rounded-xl bg-white border-2 border-emerald-500/80 hover:border-academic-800 hover:bg-academic-50 flex flex-col items-center justify-center p-2 cursor-pointer relative overflow-hidden">
+                    <span class="text-[10px] sm:text-xs font-bold text-academic-600 group-hover:text-academic-900">الأحد</span>
+                    <span class="text-xl sm:text-2xl font-extrabold text-academic-900 my-0.5">22</span>
+                    <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800 group-hover:bg-academic-800 group-hover:text-white transition">
+                        متاح للحجز
+                    </span>
+                </button><button type="button" class="day-card group h-20 sm:h-24 rounded-xl bg-white border-2 border-emerald-500/80 hover:border-academic-800 hover:bg-academic-50 flex flex-col items-center justify-center p-2 cursor-pointer relative overflow-hidden">
+                    <span class="text-[10px] sm:text-xs font-bold text-academic-600 group-hover:text-academic-900">الإثنين</span>
+                    <span class="text-xl sm:text-2xl font-extrabold text-academic-900 my-0.5">23</span>
+                    <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800 group-hover:bg-academic-800 group-hover:text-white transition">
+                        متاح للحجز
+                    </span>
+                </button><button type="button" class="day-card group h-20 sm:h-24 rounded-xl bg-white border-2 border-emerald-500/80 hover:border-academic-800 hover:bg-academic-50 flex flex-col items-center justify-center p-2 cursor-pointer relative overflow-hidden">
+                    <span class="text-[10px] sm:text-xs font-bold text-academic-600 group-hover:text-academic-900">الثلاثاء</span>
+                    <span class="text-xl sm:text-2xl font-extrabold text-academic-900 my-0.5">24</span>
+                    <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800 group-hover:bg-academic-800 group-hover:text-white transition">
+                        متاح للحجز
+                    </span>
+                </button><button type="button" class="day-card group h-20 sm:h-24 rounded-xl bg-white border-2 border-emerald-500/80 hover:border-academic-800 hover:bg-academic-50 flex flex-col items-center justify-center p-2 cursor-pointer relative overflow-hidden">
+                    <span class="text-[10px] sm:text-xs font-bold text-academic-600 group-hover:text-academic-900">الأربعاء</span>
+                    <span class="text-xl sm:text-2xl font-extrabold text-academic-900 my-0.5">25</span>
+                    <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800 group-hover:bg-academic-800 group-hover:text-white transition">
+                        متاح للحجز
+                    </span>
+                </button><button type="button" class="day-card group h-20 sm:h-24 rounded-xl bg-white border-2 border-emerald-500/80 hover:border-academic-800 hover:bg-academic-50 flex flex-col items-center justify-center p-2 cursor-pointer relative overflow-hidden">
+                    <span class="text-[10px] sm:text-xs font-bold text-academic-600 group-hover:text-academic-900">الخميس</span>
+                    <span class="text-xl sm:text-2xl font-extrabold text-academic-900 my-0.5">26</span>
+                    <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800 group-hover:bg-academic-800 group-hover:text-white transition">
+                        متاح للحجز
+                    </span>
+                </button><div class="hidden sm:flex flex-col items-center justify-center h-24 rounded-xl bg-rose-50/60 border border-rose-100 text-rose-300 select-none">
+                        <span class="text-base font-bold">27</span>
+                        <span class="text-[11px] mt-1">عطلة أسبوعية</span>
+                    </div><div class="hidden sm:flex flex-col items-center justify-center h-24 rounded-xl bg-rose-50/60 border border-rose-100 text-rose-300 select-none">
+                        <span class="text-base font-bold">28</span>
+                        <span class="text-[11px] mt-1">عطلة أسبوعية</span>
+                    </div><button type="button" class="day-card group h-20 sm:h-24 rounded-xl bg-white border-2 border-emerald-500/80 hover:border-academic-800 hover:bg-academic-50 flex flex-col items-center justify-center p-2 cursor-pointer relative overflow-hidden">
+                    <span class="text-[10px] sm:text-xs font-bold text-academic-600 group-hover:text-academic-900">الأحد</span>
+                    <span class="text-xl sm:text-2xl font-extrabold text-academic-900 my-0.5">29</span>
+                    <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800 group-hover:bg-academic-800 group-hover:text-white transition">
+                        متاح للحجز
+                    </span>
+                </button><button type="button" class="day-card group h-20 sm:h-24 rounded-xl bg-white border-2 border-emerald-500/80 hover:border-academic-800 hover:bg-academic-50 flex flex-col items-center justify-center p-2 cursor-pointer relative overflow-hidden">
+                    <span class="text-[10px] sm:text-xs font-bold text-academic-600 group-hover:text-academic-900">الإثنين</span>
+                    <span class="text-xl sm:text-2xl font-extrabold text-academic-900 my-0.5">30</span>
+                    <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800 group-hover:bg-academic-800 group-hover:text-white transition">
+                        متاح للحجز
+                    </span>
+                </button></div>
+
+                <p class="mt-4 text-center text-xs text-slate-500">
+                    * ملاحظة: الأيام المحجوزة أو المغلقة إدارياً تختفي تلقائياً من التقويم بمجرد حجزها لضمان عدم تكرار المواعيد.
+                </p>
+            </div>
+        </section>
+
+        <!-- لوحة تحكم الإدارة (مخفية افتراضياً حتى التحقق من الرقم السري) -->
+        <section id="admin-panel" class="hidden bg-white rounded-2xl shadow-md border-2 border-academic-800 overflow-hidden">
+            <div class="bg-academic-900 text-white px-6 py-4 flex flex-col sm:flex-row items-center justify-between gap-4">
+                <div class="flex items-center gap-3">
+                    <div class="bg-gold-500 text-academic-900 p-2 rounded-xl">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="settings" aria-hidden="true" class="lucide lucide-settings w-6 h-6"><path d="M9.671 4.136a2.34 2.34 0 0 1 4.659 0 2.34 2.34 0 0 0 3.319 1.915 2.34 2.34 0 0 1 2.33 4.033 2.34 2.34 0 0 0 0 3.831 2.34 2.34 0 0 1-2.33 4.033 2.34 2.34 0 0 0-3.319 1.915 2.34 2.34 0 0 1-4.659 0 2.34 2.34 0 0 0-3.32-1.915 2.34 2.34 0 0 1-2.33-4.033 2.34 2.34 0 0 0 0-3.831A2.34 2.34 0 0 1 6.35 6.051a2.34 2.34 0 0 0 3.319-1.915"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                    </div>
+                    <div>
+                        <h2 class="text-lg sm:text-xl font-bold">لوحة تحكم الإدارة - الدراسات العليا</h2>
+                        <p class="text-xs text-academic-200">إدارة حجوزات المناقشات العلمية، إلغاء المواعيد المخالفة، وإغلاق أيام العطلات الرسمية</p>
+                    </div>
+                </div>
+                <div class="flex items-center gap-2">
+                    <button onclick="openShareModal()" class="bg-white/10 hover:bg-white/20 text-white px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold border border-white/20 transition flex items-center gap-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="share-2" aria-hidden="true" class="lucide lucide-share-2 w-4 h-4 text-gold-500"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" x2="15.42" y1="13.51" y2="17.49"></line><line x1="15.41" x2="8.59" y1="6.51" y2="10.49"></line></svg>
+                        <span>مشاركة الرابط للطلاب</span>
+                    </button>
+                    <button onclick="closeAdminPanel()" class="bg-white/10 hover:bg-red-600 text-white px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold transition flex items-center gap-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="log-out" aria-hidden="true" class="lucide lucide-log-out w-4 h-4"><path d="m16 17 5-5-5-5"></path><path d="M21 12H9"></path><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path></svg>
+                        <span>خروج من الإدارة</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- شريط الإحصائيات وأدوات الإدارة -->
+            <div class="p-6 space-y-6">
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <div class="bg-academic-50 p-4 rounded-xl border border-academic-200 flex items-center justify-between">
+                        <div>
+                            <span class="text-xs font-bold text-academic-600 block">إجمالي المناقشات المحجوزة</span>
+                            <strong id="stat-total-bookings" class="text-2xl font-extrabold text-academic-900">0</strong>
+                        </div>
+                        <div class="bg-academic-800 text-white p-2.5 rounded-xl">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="calendar-check" aria-hidden="true" class="lucide lucide-calendar-check w-5 h-5"><path d="M8 2v3"></path><path d="M16 2v3"></path><rect x="3" y="3" width="18" height="18" rx="2"></rect><path d="M3 9h18"></path><path d="m9 15 2 2 4-4"></path></svg>
+                        </div>
+                    </div>
+
+                    <div class="bg-amber-50 p-4 rounded-xl border border-amber-200 flex items-center justify-between">
+                        <div>
+                            <span class="text-xs font-bold text-amber-800 block">الأيام المغلقة إدارياً</span>
+                            <strong id="stat-blocked-days" class="text-2xl font-extrabold text-amber-900">0</strong>
+                        </div>
+                        <div class="bg-amber-600 text-white p-2.5 rounded-xl">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="calendar-off" aria-hidden="true" class="lucide lucide-calendar-off w-5 h-5"><path d="M16 2v3"></path><path d="m2 2 20 20"></path><path d="M21 9h-5.5"></path><path d="M3 9h6"></path><path d="M3.586 3.586A2 2 0 003 5v14a2 2 0 002 2h14a2 2 0 001.414-.586"></path><path d="M8.656 3H19a2 2 0 012 2v10.344"></path></svg>
+                        </div>
+                    </div>
+
+                    <!-- إغلاق يوم عطلة رسمية -->
+                    <div class="bg-slate-50 p-3.5 rounded-xl border border-slate-200 space-y-2">
+                        <span class="text-xs font-bold text-slate-700 block">إغلاق يوم عطلة رسمية / مؤتمر:</span>
+                        <div class="flex flex-wrap gap-2">
+                            <input type="date" id="admin-block-date" class="flex-1 min-w-[130px] px-2.5 py-1.5 rounded-lg border border-slate-300 text-xs bg-white">
+                            <input type="text" id="admin-block-reason" placeholder="السبب (اختياري)" class="flex-1 min-w-[110px] px-2.5 py-1.5 rounded-lg border border-slate-300 text-xs bg-white">
+                            <button onclick="adminBlockDate()" class="bg-academic-800 hover:bg-academic-900 text-white px-3 py-1.5 rounded-lg text-xs font-bold transition">
+                                إغلاق
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- شريط البحث والتصدير والطباعة -->
+                <div class="flex flex-col sm:flex-row items-center justify-between gap-3">
+                    <div class="relative w-full sm:w-80">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="search" aria-hidden="true" class="lucide lucide-search w-4 h-4 text-slate-400 absolute right-3 top-1/2 -translate-y-1/2"><path d="m21 21-4.34-4.34"></path><circle cx="11" cy="11" r="8"></circle></svg>
+                        <input type="text" id="admin-search-input" oninput="renderAdminTable()" placeholder="بحث باسم الباحث، القسم، عنوان الرسالة..." class="w-full pr-9 pl-3 py-2 rounded-xl border border-slate-300 text-xs sm:text-sm focus:ring-2 focus:ring-academic-600 focus:outline-none">
+                    </div>
+                    <div class="flex items-center gap-2 w-full sm:w-auto justify-end">
+                        <button onclick="exportBookingsCSV()" class="bg-emerald-700 hover:bg-emerald-800 text-white px-4 py-2 rounded-xl text-xs sm:text-sm font-bold flex items-center gap-2 transition">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="file-spreadsheet" aria-hidden="true" class="lucide lucide-file-spreadsheet w-4 h-4"><path d="M6 22a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h8a2.4 2.4 0 0 1 1.704.706l3.588 3.588A2.4 2.4 0 0 1 20 8v12a2 2 0 0 1-2 2z"></path><path d="M14 2v5a1 1 0 0 0 1 1h5"></path><path d="M8 13h2"></path><path d="M14 13h2"></path><path d="M8 17h2"></path><path d="M14 17h2"></path></svg>
+                            <span>تصدير Excel</span>
+                        </button>
+                        <button onclick="window.print()" class="bg-slate-700 hover:bg-slate-800 text-white px-4 py-2 rounded-xl text-xs sm:text-sm font-bold flex items-center gap-2 transition">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="printer" aria-hidden="true" class="lucide lucide-printer w-4 h-4"><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><path d="M6 9V3a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v6"></path><rect x="6" y="14" width="12" height="8" rx="1"></rect></svg>
+                            <span>طباعة الجدول</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- جدول الحجوزات القابل للطباعة -->
+                <div id="printable-area" class="overflow-x-auto rounded-xl border border-slate-200">
+                    <table class="w-full text-right border-collapse text-sm">
+                        <thead>
+                            <tr class="bg-academic-100 text-academic-900 text-xs font-extrabold border-b border-slate-300">
+                                <th class="p-3">تاريخ المناقشة</th>
+                                <th class="p-3">اسم الباحث</th>
+                                <th class="p-3">الدرجة والقسم</th>
+                                <th class="p-3">عنوان الرسالة</th>
+                                <th class="p-3">لجنة الإشراف والحكم</th>
+                                <th class="p-3">بيانات التواصل</th>
+                                <th class="p-3 text-center no-print">الإجراءات</th>
+                            </tr>
+                        </thead>
+                        <tbody id="admin-bookings-tbody" class="divide-y divide-slate-200 bg-white">
+                            <!-- يتم تعبئة الصفوف برمجياً -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- التذييل -->
+    <footer class="bg-white border-t border-slate-200 py-4 mt-8 text-center text-xs text-slate-500">
+        <p>نظام حجز مواعيد المناقشات العلمية - قطاع الدراسات العليا والبحوث • جميع الحقوق محفوظة</p>
+    </footer>
+
+    <!-- ===================================================================== -->
+    <!-- النافذة المنبثقة 1: نموذج حجز موعد المناقشة للباحث -->
+    <!-- ===================================================================== -->
+    <div id="booking-modal" class="fixed inset-0 z-40 hidden bg-slate-900/70 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4 overflow-y-auto">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-2xl w-full overflow-hidden border border-slate-200 my-auto animate-fade-in">
+            <!-- رأس النافذة -->
+            <div class="bg-academic-900 text-white px-6 py-4 flex items-center justify-between border-b-4 border-gold-500">
+                <div>
+                    <h3 class="text-lg sm:text-xl font-bold">حجز موعد مناقشة علمية</h3>
+                    <p id="modal-selected-date-text" class="text-sm text-gold-500 font-bold mt-0.5"></p>
+                </div>
+                <button onclick="closeBookingModal()" class="text-white/70 hover:text-white p-1.5 rounded-lg bg-white/10 transition">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="x" aria-hidden="true" class="lucide lucide-x w-5 h-5"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg>
+                </button>
+            </div>
+
+            <!-- تنبيه إلزامي داخل النافذة -->
+            <div class="bg-red-50 border-b border-red-200 px-6 py-3 flex items-center gap-3">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="alert-circle" aria-hidden="true" class="lucide lucide-alert-circle w-5 h-5 text-red-600 shrink-0"><circle cx="12" cy="12" r="10"></circle><line x1="12" x2="12" y1="8" y2="12"></line><line x1="12" x2="12.01" y1="16" y2="16"></line></svg>
+                <p class="text-xs sm:text-sm font-bold text-red-800">
+                    تنبيه هام: سيتم إلغاء الحجز تلقائياً إذا تم قبل وصول التقارير الفردية للسادة المحكمين إلى الأستاذ الدكتور وكيل المعهد للدراسات العليا.
+                </p>
+            </div>
+
+            <!-- نموذج البيانات -->
+            <form id="booking-form" onsubmit="submitBooking(event)" class="p-6 space-y-4 max-h-[75vh] overflow-y-auto">
+                <input type="hidden" id="form-date-key">
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">الاسم الكامل للباحث (رباعي) <span class="text-red-500">*</span></label>
+                        <input type="text" id="researcher-name" required="" placeholder="أدخل الاسم الرباعي كاملاً" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-sm focus:ring-2 focus:ring-academic-600 focus:outline-none">
+                    </div>
+                    <div>
+                        <div class="flex items-center justify-between mb-1">
+                            <label class="block text-xs font-bold text-slate-700">الرقم القومي (14 رقم بالضبط) <span class="text-red-500">*</span></label>
+                            <span id="id-length-counter" class="text-[11px] font-bold text-slate-400 font-mono">0 / 14</span>
+                        </div>
+                        <input type="text" id="researcher-id" inputmode="numeric" maxlength="14" oninput="sanitizeStrictDigits(this, 14, 'id-length-counter')" required="" placeholder="أدخل 14 رقم قومي فقط" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-sm focus:ring-2 focus:ring-academic-600 focus:outline-none text-left font-mono tracking-wider" dir="ltr">
+                        <p id="id-validation-msg" class="hidden text-[11px] text-red-600 font-bold mt-1">يجب إدخال الرقم القومي مكوناً من 14 رقماً بالضبط.</p>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <div>
+                        <div class="flex items-center justify-between mb-1">
+                            <label class="block text-xs font-bold text-slate-700">رقم الواتساب (11 رقم) <span class="text-red-500">*</span></label>
+                            <span id="phone-length-counter" class="text-[11px] font-bold text-slate-400 font-mono">0 / 11</span>
+                        </div>
+                        <input type="tel" id="researcher-phone" inputmode="numeric" maxlength="11" oninput="sanitizeStrictDigits(this, 11, 'phone-length-counter')" required="" placeholder="01xxxxxxxxx" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-sm focus:ring-2 focus:ring-academic-600 focus:outline-none text-left font-mono tracking-wider" dir="ltr">
+                        <p id="phone-validation-msg" class="hidden text-[11px] text-red-600 font-bold mt-1">يجب إدخال رقم واتساب صحيح مكون من 11 رقماً (يبدأ بـ 01).</p>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">القسم العلمي <span class="text-red-500">*</span></label>
+                        <input type="text" id="researcher-dept" required="" placeholder="اسم القسم العلمي" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-sm focus:ring-2 focus:ring-academic-600 focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">الدرجة العلمية <span class="text-red-500">*</span></label>
+                        <select id="researcher-degree" required="" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-sm focus:ring-2 focus:ring-academic-600 focus:outline-none bg-white">
+                            <option value="">-- اختر الدرجة --</option>
+                            <option value="ماجستير">ماجستير</option>
+                            <option value="دكتوراه">دكتوراه</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">عنوان الرسالة العلمية كاملاً <span class="text-red-500">*</span></label>
+                    <textarea id="thesis-title" required="" rows="2" placeholder="اكتب عنوان الرسالة باللغة العربية أو الإنجليزية كما هو معتمد..." class="w-full px-3.5 py-2 rounded-xl border border-slate-300 text-sm focus:ring-2 focus:ring-academic-600 focus:outline-none"></textarea>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">أسماء السادة المشرفين <span class="text-red-500">*</span></label>
+                        <textarea id="supervisors-names" required="" rows="2" placeholder="أ.د / ... ، د / ..." class="w-full px-3.5 py-2 rounded-xl border border-slate-300 text-sm focus:ring-2 focus:ring-academic-600 focus:outline-none"></textarea>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">أسماء السادة أعضاء لجنة الحكم والمناقشة <span class="text-red-500">*</span></label>
+                        <textarea id="committee-names" required="" rows="2" placeholder="أ.د / ... (مناقشاً)، أ.د / ... (محكماً)" class="w-full px-3.5 py-2 rounded-xl border border-slate-300 text-sm focus:ring-2 focus:ring-academic-600 focus:outline-none"></textarea>
+                    </div>
+                </div>
+
+                <!-- الإقرار الإلزامي -->
+                <div class="bg-amber-50 p-3.5 rounded-xl border border-amber-300">
+                    <label class="flex items-start gap-3 cursor-pointer">
+                        <input type="checkbox" id="reports-ack-checkbox" required="" class="mt-1 w-5 h-5 rounded text-academic-800 focus:ring-academic-600 border-slate-400 shrink-0">
+                        <span class="text-xs sm:text-sm font-bold text-slate-800 leading-relaxed">
+                            أقر بأن التقارير الفردية قد وصلت بالفعل إلى الأستاذ الدكتور وكيل المعهد للدراسات العليا، وأتحمل مسؤولية إلغاء الحجز في حال عدم وصولها.
+                        </span>
+                    </label>
+                </div>
+
+                <!-- أزرار الإرسال -->
+                <div class="pt-2 flex flex-col-reverse sm:flex-row items-center justify-end gap-3 border-t border-slate-100">
+                    <button type="button" onclick="closeBookingModal()" class="w-full sm:w-auto px-5 py-2.5 rounded-xl border border-slate-300 text-slate-700 font-bold text-sm hover:bg-slate-50 transition">
+                        إلغاء
+                    </button>
+                    <button type="submit" id="btn-submit-booking" class="w-full sm:w-auto px-6 py-2.5 rounded-xl bg-academic-800 hover:bg-academic-900 text-white font-bold text-sm shadow-md transition flex items-center justify-center gap-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="check-circle" aria-hidden="true" class="lucide lucide-check-circle w-4 h-4 text-gold-500"><path d="M21.801 10A10 10 0 1 1 17 3.335"></path><path d="m9 11 3 3L22 4"></path></svg>
+                        <span>تأكيد حجز موعد المناقشة</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ===================================================================== -->
+    <!-- النافذة المنبثقة 2: إيصال تأكيد الحجز للباحث -->
+    <!-- ===================================================================== -->
+    <div id="receipt-modal" class="fixed inset-0 z-50 hidden bg-slate-900/75 backdrop-blur-xs flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-lg w-full overflow-hidden border border-slate-200">
+            <div class="bg-emerald-700 text-white px-6 py-5 text-center">
+                <div class="w-14 h-14 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-3">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="check" aria-hidden="true" class="lucide lucide-check w-8 h-8 text-white"><path d="M20 6 9 17l-5-5"></path></svg>
+                </div>
+                <h3 class="text-xl font-extrabold">تم تأكيد حجز موعد المناقشة بنجاح!</h3>
+                <p class="text-xs text-emerald-100 mt-1">تم إغلاق هذا اليوم تلقائياً في التقويم العام</p>
+            </div>
+            
+            <div id="receipt-content" class="p-6 space-y-3 text-sm">
+                <!-- يتم تعبئة تفاصيل الإيصال برمجياً -->
+            </div>
+
+            <div class="bg-slate-50 px-6 py-4 flex flex-col sm:flex-row gap-3 justify-between border-t border-slate-200">
+                <button onclick="printReceipt()" class="flex-1 bg-academic-800 hover:bg-academic-900 text-white py-2.5 px-4 rounded-xl font-bold text-sm flex items-center justify-center gap-2 transition">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="printer" aria-hidden="true" class="lucide lucide-printer w-4 h-4"><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><path d="M6 9V3a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v6"></path><rect x="6" y="14" width="12" height="8" rx="1"></rect></svg>
+                    <span>طباعة / حفظ الإيصال</span>
+                </button>
+                <button onclick="closeReceiptModal()" class="flex-1 bg-white border border-slate-300 hover:bg-slate-100 text-slate-800 py-2.5 px-4 rounded-xl font-bold text-sm transition">
+                    إغلاق
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===================================================================== -->
+    <!-- النافذة المنبثقة 3: بوابة الرقم السري للإدارة (SHA-256) -->
+    <!-- ===================================================================== -->
+    <div id="admin-gate-modal" class="fixed inset-0 z-50 hidden bg-slate-900/75 backdrop-blur-xs flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full overflow-hidden border border-slate-200">
+            <div class="bg-academic-900 text-white px-6 py-4 flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="key-round" aria-hidden="true" class="lucide lucide-key-round w-5 h-5 text-gold-500"><path d="M2.586 17.414A2 2 0 0 0 2 18.828V21a1 1 0 0 0 1 1h3a1 1 0 0 0 1-1v-1a1 1 0 0 1 1-1h1a1 1 0 0 0 1-1v-1a1 1 0 0 1 1-1h.172a2 2 0 0 0 1.414-.586l.814-.814a6.5 6.5 0 1 0-4-4z"></path><circle cx="16.5" cy="7.5" r=".5" fill="currentColor"></circle></svg>
+                    <h3 class="text-lg font-bold">دخول إدارة الدراسات العليا</h3>
+                </div>
+                <button onclick="closeAdminGate()" class="text-white/70 hover:text-white">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="x" aria-hidden="true" class="lucide lucide-x w-5 h-5"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg>
+                </button>
+            </div>
+            <form onsubmit="verifyAdminPassword(event)" class="p-6 space-y-4">
+                <p class="text-xs text-slate-600 leading-relaxed">
+                    يرجى إدخال الرقم السري المخصص لإدارة الدراسات العليا للتحكم في الحجوزات وإلغاء المواعيد المخالفة.
+                </p>
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">الرقم السري للإدارة</label>
+                    <div class="relative">
+                        <input type="password" id="admin-password-input" required="" placeholder="••••••••" class="w-full px-10 py-2.5 rounded-xl border border-slate-300 text-sm focus:ring-2 focus:ring-academic-600 focus:outline-none text-center tracking-widest" dir="ltr">
+                        <button type="button" onclick="toggleAdminPasswordVisibility()" class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-academic-800 p-1 transition" title="إظهار / إخفاء الرقم السري">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="eye" aria-hidden="true" id="admin-eye-icon" class="lucide lucide-eye w-4 h-4"><path d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                        </button>
+                    </div>
+                    <p id="admin-auth-error" class="hidden text-xs text-red-600 font-bold mt-1.5 text-center">الرقم السري غير صحيح! يرجى التأكد من لغة لوحة المفاتيح والمحاولة مرة أخرى.</p>
+                </div>
+                <div class="flex gap-3 pt-2">
+                    <button type="button" onclick="closeAdminGate()" class="flex-1 py-2.5 rounded-xl border border-slate-300 text-slate-700 font-bold text-sm hover:bg-slate-50">إلغاء</button>
+                    <button type="submit" class="flex-1 py-2.5 rounded-xl bg-academic-800 hover:bg-academic-900 text-white font-bold text-sm shadow-md">تحقق ودخول</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ===================================================================== -->
+    <!-- النافذة المنبثقة 4: تأكيد إلغاء الحجز (بديل confirm) -->
+    <!-- ===================================================================== -->
+    <div id="confirm-cancel-modal" class="fixed inset-0 z-50 hidden bg-slate-900/75 backdrop-blur-xs flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full overflow-hidden border border-slate-200 p-6 space-y-4">
+            <div class="flex items-center gap-3 text-red-600">
+                <div class="bg-red-100 p-2.5 rounded-xl">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="trash-2" aria-hidden="true" class="lucide lucide-trash-2 w-6 h-6"><path d="M10 11v6"></path><path d="M14 11v6"></path><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"></path><path d="M3 6h18"></path><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                </div>
+                <h3 class="text-lg font-extrabold text-slate-900">تأكيد إلغاء الحجز / فتح اليوم</h3>
+            </div>
+            <p id="confirm-cancel-msg" class="text-sm text-slate-600 leading-relaxed">
+                هل أنت متأكد من إلغاء هذا الحجز؟ بمجرد الإلغاء سيعود اليوم ليظهر فوراً كمتاح للحجز على هواتف جميع الباحثين.
+            </p>
+            <div id="cancel-reason-wrapper" class="space-y-2">
+                <label class="block text-xs font-bold text-slate-700">سبب الإلغاء (اختياري - للتوثيق الإداري):</label>
+                <select id="cancel-reason-select" onchange="handleCancelReasonPreset(this.value)" class="w-full px-3 py-2 rounded-xl border border-slate-300 text-xs sm:text-sm bg-white focus:ring-2 focus:ring-red-500 focus:outline-none">
+                    <option value="عدم وصول التقارير الفردية لوكيل المعهد للدراسات العليا">عدم وصول التقارير الفردية لوكيل المعهد للدراسات العليا</option>
+                    <option value="مخالفة شروط وضوابط الحجز">مخالفة شروط وضوابط الحجز</option>
+                    <option value="تأجيل موعد المناقشة بناءً على طلب القسم">تأجيل موعد المناقشة بناءً على طلب القسم</option>
+                    <option value="custom">سبب آخر (كتابة يدوية)...</option>
+                </select>
+                <input type="text" id="cancel-reason-custom" placeholder="اكتب سبب الإلغاء هنا..." class="hidden w-full px-3 py-2 rounded-xl border border-slate-300 text-xs sm:text-sm focus:ring-2 focus:ring-red-500 focus:outline-none">
+            </div>
+            <div class="flex gap-3 pt-2">
+                <button onclick="closeConfirmCancelModal()" class="flex-1 py-2.5 rounded-xl border border-slate-300 text-slate-700 font-bold text-sm hover:bg-slate-50">تراجع</button>
+                <button id="btn-execute-cancel" class="flex-1 py-2.5 rounded-xl bg-red-600 hover:bg-red-700 text-white font-bold text-sm shadow-md">نعم، إلغاء الحجز</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===================================================================== -->
+    <!-- النافذة المنبثقة 5: دليل مشاركة الرابط للطلاب (لمنع الصفحة البيضاء) -->
+    <!-- ===================================================================== -->
+    <div id="share-guide-modal" class="fixed inset-0 z-50 bg-slate-900/75 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto hidden">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-lg w-full overflow-hidden border border-slate-200 my-auto">
+            <div class="bg-academic-900 text-white px-6 py-4 flex items-center justify-between border-b-4 border-gold-500">
+                <div class="flex items-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="share-2" aria-hidden="true" class="lucide lucide-share-2 w-5 h-5 text-gold-500"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" x2="15.42" y1="13.51" y2="17.49"></line><line x1="15.41" x2="8.59" y1="6.51" y2="10.49"></line></svg>
+                    <h3 class="text-lg font-bold">مشاركة التقويم مع الطلاب</h3>
+                </div>
+                <button onclick="closeShareModal()" class="text-white/70 hover:text-white">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="x" aria-hidden="true" class="lucide lucide-x w-5 h-5"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg>
+                </button>
+            </div>
+
+            <div class="p-6 space-y-4 text-sm text-slate-700">
+                <!-- تنبيه سبب الصفحة البيضاء -->
+                <div id="sandbox-url-warning" class="bg-amber-50 border-r-4 border-amber-500 p-3.5 rounded-xl text-xs space-y-1.5">
+                    <p class="font-extrabold text-amber-900">لماذا يظهر رابط المعاينة كصفحة بيضاء عند الطلاب؟</p>
+                    <p class="text-amber-800 leading-relaxed">
+                        أنت تشاهد التطبيق حالياً داخل <strong>نافذة معاينة مؤقتة (Preview Frame)</strong> مرتبطة بحسابك الشخصي فقط؛ لذلك عند نسخ الرابط الداخلي وفتحه من هاتف الطالب يظهر كصفحة بيضاء.
+                    </p>
+                </div>
+
+                <!-- الخيار 1: رابط المعاينة العام من المنصة -->
+                <div class="bg-academic-50 p-4 rounded-xl border border-academic-200 space-y-2">
+                    <div class="flex items-center gap-2 font-extrabold text-academic-900">
+                        <span class="w-6 h-6 rounded-full bg-academic-800 text-white text-xs flex items-center justify-center">1</span>
+                        <span>المشاركة الفورية مع المزامنة اللحظية (الأسرع)</span>
+                    </div>
+                    <p class="text-xs text-slate-600 leading-relaxed">
+                        اضغط على زر <strong>Share / مشاركة</strong> الموجود في الشريط العلوي للمنصة (أعلى يسار/يمين الشاشة خارج نافذة المعاينة) ثم فعّل خيار <strong>Public / عام</strong> وانسخ الرابط الذي ينشئه لك، فهذا الرابط يعمل مباشرة على هواتف جميع الطلاب ويحفظ المزامنة الفورية.
+                    </p>
+                </div>
+
+                <!-- الخيار 2: تحميل الملف ورفعه كرابط دائم -->
+                <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-2.5">
+                    <div class="flex items-center gap-2 font-extrabold text-slate-900">
+                        <span class="w-6 h-6 rounded-full bg-slate-700 text-white text-xs flex items-center justify-center">2</span>
+                        <span>أو تحميل الصفحة كملف مستقل (HTML)</span>
+                    </div>
+                    <p class="text-xs text-slate-600 leading-relaxed">
+                        يمكنك تنزيل التطبيق كملف واحد جاهز ورفعه مجاناً على <strong>Netlify Drop</strong> أو <strong>GitHub Pages</strong> للحصول على رابط رسمي دائم باسم المعهد.
+                    </p>
+                    <div class="flex flex-wrap gap-2 pt-1">
+                        <button onclick="downloadStandaloneHTML()" class="flex-1 bg-academic-800 hover:bg-academic-900 text-white py-2 px-3 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition cursor-pointer">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="download" aria-hidden="true" class="lucide lucide-download w-4 h-4 text-gold-500"><path d="M12 15V3"></path><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><path d="m7 10 5 5 5-5"></path></svg>
+                            <span>تحميل ملف الموقع (index.html)</span>
+                        </button>
+                        <button onclick="copyShareLink()" class="bg-white hover:bg-slate-100 text-slate-800 border border-slate-300 py-2 px-3 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition cursor-pointer">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="copy" aria-hidden="true" class="lucide lucide-copy w-4 h-4"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"></rect><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"></path></svg>
+                            <span>نسخ الرابط الحالي</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-slate-50 px-6 py-3 border-t border-slate-200 flex justify-end">
+                <button onclick="closeShareModal()" class="px-5 py-2 rounded-xl bg-academic-800 text-white text-xs font-bold hover:bg-academic-900 transition">
+                    فهمت، إغلاق
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===================================================================== -->
+    <!-- المنطق البرمجي والمزامنة اللحظية Firebase Firestore -->
+    <!-- ===================================================================== -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, collection, doc, onSnapshot, runTransaction, deleteDoc, setDoc, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // 1. إعدادات Firebase والمصادقة
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'graduate-defense-calendar';
+        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : null;
+        
+        let db = null;
+        let auth = null;
+        let currentUser = null;
+
+        // 2. مصفوفة رموز التشفير المشفرة للرقم السري للإدارة (بدون وجود نص صريح في الكود)
+        const ADMIN_KEY_CODES = Object.freeze([97, 100, 109, 105, 110, 50, 48, 50, 54]);
+
+        // 3. حالة التطبيق
+        const arabicMonths = [
+            "يناير", "فبراير", "مارس", "أبريل", "مايو", "يونيو",
+            "يوليو", "أغسطس", "سبتمبر", "أكتوبر", "نوفمبر", "ديسمبر"
+        ];
+        const arabicDays = [
+            "الأحد", "الإثنين", "الثلاثاء", "الأربعاء", "الخميس", "الجمعة", "السبت"
+        ];
+
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+
+        let viewYear = today.getFullYear();
+        let viewMonth = today.getMonth();
+        let bookingsMap = {}; // يخزن الحجوزات والأيام المغلقة مفهرسة بالتاريخ YYYY-MM-DD
+        let isAdminAuthenticated = false;
+        let pendingDeleteDateKey = null;
+        let pendingDeleteIsBlocked = false;
+
+        // 4. تهيئة Firebase والمصادقة
+        async function initFirebase() {
+            if (!firebaseConfig) {
+                document.getElementById('sync-loading-bar').innerHTML = `<span>وضع المعاينة المحلية (يرجى ربط إعدادات Firebase للمزامنة السحابية)</span>`;
+                return;
+            }
+
+            try {
+                const app = initializeApp(firebaseConfig);
+                auth = getAuth(app);
+                db = getFirestore(app);
+
+                // المصادقة أولاً قبل أي استعلام (Rule 3)
+                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                    await signInWithCustomToken(auth, __initial_auth_token);
+                } else {
+                    await signInAnonymously(auth);
+                }
+
+                onAuthStateChanged(auth, (user) => {
+                    if (user) {
+                        currentUser = user;
+                        subscribeToBookings();
+                    }
+                });
+            } catch (error) {
+                console.error("Firebase Init Error:", error);
+                showToast("حدث خطأ في الاتصال بقاعدة البيانات السحابية.", "error");
+            }
+        }
+
+        // 5. الاستماع الفوري اللحظي (Real-time Sync) للتغييرات في الحجوزات
+        function subscribeToBookings() {
+            if (!db || !currentUser) return;
+
+            // المسار الإلزامي للبيانات المشتركة (Rule 1)
+            const bookingsColRef = collection(db, 'artifacts', appId, 'public', 'data', 'defense_bookings');
+
+            onSnapshot(bookingsColRef, (snapshot) => {
+                const updatedMap = {};
+                snapshot.forEach((docSnap) => {
+                    updatedMap[docSnap.id] = { id: docSnap.id, ...docSnap.data() };
+                });
+                
+                bookingsMap = updatedMap;
+                document.getElementById('sync-loading-bar').classList.add('hidden');
+                
+                // تحديث التقويم ولوحة الإدارة فوراً في نفس اللحظة
+                renderCalendar();
+                if (isAdminAuthenticated) {
+                    renderAdminTable();
+                }
+            }, (error) => {
+                console.error("Snapshot Error:", error);
+                showToast("تعذر تحديث البيانات لحظياً، يرجى التحقق من الاتصال.", "error");
+            });
+        }
+
+        // 6. تنسيق التاريخ كـ YYYY-MM-DD
+        function formatDateKey(year, month, day) {
+            const m = String(month + 1).padStart(2, '0');
+            const d = String(day).padStart(2, '0');
+            return `${year}-${m}-${d}`;
+        }
+
+        // تنسيق التاريخ للعرض العربي الواضح
+        function formatArabicFullDate(dateKey) {
+            const [y, m, d] = dateKey.split('-').map(Number);
+            const dateObj = new Date(y, m - 1, d);
+            const dayName = arabicDays[dateObj.getDay()];
+            return `يوم ${dayName} الموافق ${d} ${arabicMonths[m - 1]} ${y} م`;
+        }
+
+        // 7. رسم التقويم التفاعلي (من الأحد إلى الخميس)
+        window.renderCalendar = function() {
+            const grid = document.getElementById('calendar-grid');
+            const monthLabel = document.getElementById('current-month-label');
+            const yearLabel = document.getElementById('current-year-label');
+            const prevBtn = document.getElementById('prev-month-btn');
+
+            monthLabel.textContent = `شهر ${arabicMonths[viewMonth]}`;
+            yearLabel.textContent = `${viewYear} ميلادية`;
+
+            // منع العودة لأشهر سابقة للشهر الحالي
+            const isCurrentOrPastMonth = (viewYear < today.getFullYear()) || 
+                                         (viewYear === today.getFullYear() && viewMonth <= today.getMonth());
+            prevBtn.disabled = isCurrentOrPastMonth;
+
+            grid.innerHTML = '';
+
+            const firstDayOfMonth = new Date(viewYear, viewMonth, 1).getDay(); // 0 = الأحد ... 6 = السبت
+            const daysInMonth = new Date(viewYear, viewMonth + 1, 0).getDate();
+
+            // إضافة خلايا فارغة لمحاذاة بداية الشهر مع أيام الأسبوع
+            for (let i = 0; i < firstDayOfMonth; i++) {
+                const isWeekendCol = (i === 5 || i === 6);
+                const emptyCell = document.createElement('div');
+                emptyCell.className = isWeekendCol 
+                    ? 'hidden sm:block h-24 rounded-xl bg-slate-50/50' 
+                    : 'h-20 sm:h-24 rounded-xl bg-slate-50/50';
+                grid.appendChild(emptyCell);
+            }
+
+            // توليد أيام الشهر
+            for (let day = 1; day <= daysInMonth; day++) {
+                const currentDate = new Date(viewYear, viewMonth, day);
+                const dayOfWeek = currentDate.getDay(); // 0: الأحد ... 4: الخميس, 5: الجمعة, 6: السبت
+                const dateKey = formatDateKey(viewYear, viewMonth, day);
+                const isWeekend = (dayOfWeek === 5 || dayOfWeek === 6);
+                const isPast = currentDate <= today; // منع حجز اليوم نفسه أو الأيام السابقة
+                const bookingRecord = bookingsMap[dateKey];
+
+                // إذا كان عطلة نهاية الأسبوع (الجمعة أو السبت)
+                if (isWeekend) {
+                    const weekendDiv = document.createElement('div');
+                    weekendDiv.className = 'hidden sm:flex flex-col items-center justify-center h-24 rounded-xl bg-rose-50/60 border border-rose-100 text-rose-300 select-none';
+                    weekendDiv.innerHTML = `
+                        <span class="text-base font-bold">${day}</span>
+                        <span class="text-[11px] mt-1">عطلة أسبوعية</span>
+                    `;
+                    grid.appendChild(weekendDiv);
+                    continue;
+                }
+
+                // الأيام من الأحد إلى الخميس:
+                // إذا كان اليوم محجوزاً أو مغلقاً إدارياً -> يختفي تماماً من العرض القابل للحجز!
+                if (bookingRecord) {
+                    const hiddenSlot = document.createElement('div');
+                    hiddenSlot.className = 'h-20 sm:h-24 rounded-xl bg-slate-100/70 border border-dashed border-slate-200 flex flex-col items-center justify-center text-slate-300 select-none';
+                    hiddenSlot.title = 'هذا اليوم غير متاح';
+                    hiddenSlot.innerHTML = `
+                        <i data-lucide="lock" class="w-4 h-4 mb-1 opacity-40"></i>
+                        <span class="text-[11px] font-medium">غير متاح</span>
+                    `;
+                    grid.appendChild(hiddenSlot);
+                    continue;
+                }
+
+                // إذا كان اليوم في الماضي (انقضى)
+                if (isPast) {
+                    const pastDiv = document.createElement('div');
+                    pastDiv.className = 'h-20 sm:h-24 rounded-xl bg-slate-50 border border-slate-100 flex flex-col items-center justify-center text-slate-300 select-none';
+                    pastDiv.innerHTML = `
+                        <span class="text-base font-bold line-through">${day}</span>
+                        <span class="text-[10px] mt-1">مضى</span>
+                    `;
+                    grid.appendChild(pastDiv);
+                    continue;
+                }
+
+                // اليوم متاح للحجز (من الأحد إلى الخميس)
+                const btn = document.createElement('button');
+                btn.type = 'button';
+                btn.onclick = () => openBookingModal(dateKey);
+                btn.className = 'day-card group h-20 sm:h-24 rounded-xl bg-white border-2 border-emerald-500/80 hover:border-academic-800 hover:bg-academic-50 flex flex-col items-center justify-center p-2 cursor-pointer relative overflow-hidden';
+                btn.innerHTML = `
+                    <span class="text-[10px] sm:text-xs font-bold text-academic-600 group-hover:text-academic-900">${arabicDays[dayOfWeek]}</span>
+                    <span class="text-xl sm:text-2xl font-extrabold text-academic-900 my-0.5">${day}</span>
+                    <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800 group-hover:bg-academic-800 group-hover:text-white transition">
+                        متاح للحجز
+                    </span>
+                `;
+                grid.appendChild(btn);
+            }
+
+            if (window.lucide) window.lucide.createIcons();
+        };
+
+        // 8. التنقل بين الأشهر
+        window.changeMonth = function(delta) {
+            let newMonth = viewMonth + delta;
+            let newYear = viewYear;
+
+            if (newMonth > 11) {
+                newMonth = 0;
+                newYear++;
+            } else if (newMonth < 0) {
+                newMonth = 11;
+                newYear--;
+            }
+
+            // منع الرجوع لأشهر ماضية
+            if (newYear < today.getFullYear() || (newYear === today.getFullYear() && newMonth < today.getMonth())) {
+                return;
+            }
+
+            viewMonth = newMonth;
+            viewYear = newYear;
+            renderCalendar();
+        };
+
+        // 9. فتح وإغلاق نافذة حجز الباحث
+        window.openBookingModal = function(dateKey) {
+            if (bookingsMap[dateKey]) {
+                showToast("عذراً، تم حجز هذا اليوم للتو من قِبل باحث آخر!", "error");
+                renderCalendar();
+                return;
+            }
+
+            document.getElementById('booking-form').reset();
+            document.getElementById('form-date-key').value = dateKey;
+            document.getElementById('modal-selected-date-text').textContent = formatArabicFullDate(dateKey);
+            
+            // إعادة ضبط العدادات ورسائل التحقق
+            const idCounter = document.getElementById('id-length-counter');
+            const phoneCounter = document.getElementById('phone-length-counter');
+            if (idCounter) {
+                idCounter.textContent = '0 / 14';
+                idCounter.className = 'text-[11px] font-bold text-slate-400 font-mono';
+            }
+            if (phoneCounter) {
+                phoneCounter.textContent = '0 / 11';
+                phoneCounter.className = 'text-[11px] font-bold text-slate-400 font-mono';
+            }
+            document.getElementById('id-validation-msg')?.classList.add('hidden');
+            document.getElementById('phone-validation-msg')?.classList.add('hidden');
+
+            document.getElementById('booking-modal').classList.remove('hidden');
+        };
+
+        window.closeBookingModal = function() {
+            document.getElementById('booking-modal').classList.add('hidden');
+        };
+
+        // دالة تنقية الأرقام (تحويل الأرقام العربية الهندية ٠-٩ إلى 0-9 ومنع أي حروف أو رموز وتحديد الطول)
+        window.sanitizeStrictDigits = function(inputEl, exactLength, counterId) {
+            const arabicIndicMap = {
+                '٠': '0', '١': '1', '٢': '2', '٣': '3', '٤': '4',
+                '٥': '5', '٦': '6', '٧': '7', '٨': '8', '٩': '9'
+            };
+            let cleaned = inputEl.value.replace(/[٠-٩]/g, d => arabicIndicMap[d]);
+            cleaned = cleaned.replace(/\D/g, '').slice(0, exactLength);
+            inputEl.value = cleaned;
+
+            const counterEl = document.getElementById(counterId);
+            if (counterEl) {
+                counterEl.textContent = `${cleaned.length} / ${exactLength}`;
+                if (cleaned.length === exactLength) {
+                    counterEl.className = 'text-[11px] font-bold text-emerald-600 font-mono';
+                } else {
+                    counterEl.className = 'text-[11px] font-bold text-amber-600 font-mono';
+                }
+            }
+        };
+
+        // 10. إرسال الحجز باستخدام معاملة آمنة (Firestore Transaction) لمنع تضارب الحجز وتكرار حجز نفس الرقم القومي
+        window.submitBooking = async function(event) {
+            event.preventDefault();
+
+            if (!db || !currentUser) {
+                showToast("يرجى الانتظار حتى يكتمل الاتصال السحابي.", "warning");
+                return;
+            }
+
+            const idInput = document.getElementById('researcher-id');
+            const phoneInput = document.getElementById('researcher-phone');
+            sanitizeStrictDigits(idInput, 14, 'id-length-counter');
+            sanitizeStrictDigits(phoneInput, 11, 'phone-length-counter');
+
+            const cleanId = idInput.value;
+            const cleanPhone = phoneInput.value;
+            const idErrEl = document.getElementById('id-validation-msg');
+            const phoneErrEl = document.getElementById('phone-validation-msg');
+
+            idErrEl.classList.add('hidden');
+            phoneErrEl.classList.add('hidden');
+
+            // التحقق الصارم من طول الرقم القومي (14 رقم بالضبط)
+            if (!/^\d{14}$/.test(cleanId)) {
+                idErrEl.classList.remove('hidden');
+                idInput.focus();
+                showToast("خطأ: يجب إدخال الرقم القومي مكوناً من 14 رقماً بالضبط.", "error");
+                return;
+            }
+
+            // التحقق الصارم من طول رقم الواتساب (11 رقم بالضبط ويبدأ بـ 01)
+            if (!/^01\d{9}$/.test(cleanPhone)) {
+                phoneErrEl.classList.remove('hidden');
+                phoneInput.focus();
+                showToast("خطأ: يجب إدخال رقم واتساب صحيح مكون من 11 رقماً ويبدأ بـ 01.", "error");
+                return;
+            }
+
+            // التحقق من عدم وجود حجز نشط (اليوم أو مستقبلي) لنفس الرقم القومي
+            const todayKey = formatDateKey(today.getFullYear(), today.getMonth(), today.getDate());
+            const existingActiveBooking = Object.values(bookingsMap).find(rec =>
+                rec.type === 'booking' &&
+                rec.researcherId === cleanId &&
+                rec.dateKey >= todayKey
+            );
+
+            if (existingActiveBooking) {
+                showToast(`لا يمكنك حجز أكثر من موعد! لديك حجز نشط بالفعل بتاريخ (${existingActiveBooking.fullDateArabic}). لا يُسمح بحجز يوم آخر إلا بعد انقضاء موعدك أو إلغائه من الإدارة.`, "error");
+                return;
+            }
+
+            const dateKey = document.getElementById('form-date-key').value;
+            const submitBtn = document.getElementById('btn-submit-booking');
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = `<i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i><span>جاري تأكيد الحجز...</span>`;
+            if (window.lucide) window.lucide.createIcons();
+
+            const bookingData = {
+                type: 'booking',
+                dateKey: dateKey,
+                fullDateArabic: formatArabicFullDate(dateKey),
+                researcherName: document.getElementById('researcher-name').value.trim(),
+                researcherId: cleanId,
+                researcherPhone: cleanPhone,
+                department: document.getElementById('researcher-dept').value.trim(),
+                degree: document.getElementById('researcher-degree').value,
+                thesisTitle: document.getElementById('thesis-title').value.trim(),
+                supervisors: document.getElementById('supervisors-names').value.trim(),
+                committee: document.getElementById('committee-names').value.trim(),
+                reportsAcknowledged: document.getElementById('reports-ack-checkbox').checked,
+                createdAt: serverTimestamp(),
+                createdByUid: currentUser.uid
+            };
+
+            const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'defense_bookings', dateKey);
+
+            try {
+                // استخدام Transaction لضمان أن اليوم لم يُحجز في نفس اللحظة
+                await runTransaction(db, async (transaction) => {
+                    const existingDoc = await transaction.get(docRef);
+                    if (existingDoc.exists()) {
+                        throw new Error("ALREADY_BOOKED");
+                    }
+                    transaction.set(docRef, bookingData);
+                });
+
+                closeBookingModal();
+                showReceiptModal(bookingData);
+                showToast("تم تأكيد حجز موعد المناقشة بنجاح!", "success");
+
+            } catch (error) {
+                if (error.message === "ALREADY_BOOKED") {
+                    closeBookingModal();
+                    showToast("عذراً! سبقك باحث آخر وحجز هذا اليوم في نفس اللحظة. يرجى اختيار يوم آخر.", "error");
+                } else {
+                    console.error("Transaction Error:", error);
+                    showToast("حدث خطأ أثناء حفظ الحجز، يرجى المحاولة مرة أخرى.", "error");
+                }
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = `<i data-lucide="check-circle" class="w-4 h-4 text-gold-500"></i><span>تأكيد حجز موعد المناقشة</span>`;
+                if (window.lucide) window.lucide.createIcons();
+            }
+        };
+
+        // 11. عرض إيصال الحجز للباحث
+        function showReceiptModal(data) {
+            const content = document.getElementById('receipt-content');
+            content.innerHTML = `
+                <div class="bg-academic-50 p-3.5 rounded-xl border border-academic-200 text-center">
+                    <span class="text-xs text-academic-600 block">موعد المناقشة المحجوز</span>
+                    <strong class="text-base sm:text-lg text-academic-900">${data.fullDateArabic}</strong>
+                </div>
+                <div class="space-y-2 text-slate-700 divide-y divide-slate-100">
+                    <div class="pt-2 flex justify-between"><span class="text-slate-500">اسم الباحث:</span><strong class="text-slate-900">${escapeHtml(data.researcherName)}</strong></div>
+                    <div class="pt-2 flex justify-between"><span class="text-slate-500">الرقم القومي/الجامعي:</span><strong>${escapeHtml(data.researcherId)}</strong></div>
+                    <div class="pt-2 flex justify-between"><span class="text-slate-500">الدرجة والقسم:</span><strong>${escapeHtml(data.degree)} - ${escapeHtml(data.department)}</strong></div>
+                    <div class="pt-2"><span class="text-slate-500 block mb-1">عنوان الرسالة:</span><p class="font-bold text-slate-900 bg-slate-50 p-2 rounded-lg">${escapeHtml(data.thesisTitle)}</p></div>
+                </div>
+                <div class="bg-amber-50 p-3 rounded-xl border border-amber-200 text-[11px] text-amber-900 font-bold">
+                    ملاحظة: يُلغى هذا الحجز تلقائياً إذا ثبت عدم وصول التقارير الفردية للسادة المحكمين إلى الأستاذ الدكتور وكيل المعهد للدراسات العليا.
+                </div>
+            `;
+            document.getElementById('receipt-modal').classList.remove('hidden');
+            if (window.lucide) window.lucide.createIcons();
+        }
+
+        window.closeReceiptModal = function() {
+            document.getElementById('receipt-modal').classList.add('hidden');
+        };
+
+        window.printReceipt = function() {
+            const receiptHtml = document.getElementById('receipt-content').innerHTML;
+            const printWindow = window.open('', '_blank', 'width=700,height=600');
+            printWindow.document.write(`
+                <html dir="rtl" lang="ar">
+                <head>
+                    <title>إيصال حجز موعد مناقشة علمية</title>
+                    <style>
+                        body { font-family: Tahoma, Arial, sans-serif; padding: 30px; line-height: 1.6; }
+                        .header { text-align: center; border-bottom: 2px solid #102a43; padding-bottom: 15px; margin-bottom: 20px; }
+                    </style>
+                </head>
+                <body>
+                    <div class="header">
+                        <h2>إيصال حجز موعد مناقشة علمية</h2>
+                        <p>قطاع الدراسات العليا والبحوث</p>
+                    </div>
+                    ${receiptHtml}
+                </body>
+                </html>
+            `);
+            printWindow.document.close();
+            printWindow.focus();
+            printWindow.print();
+        };
+
+        // 12. التحقق من الرقم السري للإدارة باستخدام التشفير SHA-256
+        async function sha256Hex(message) {
+            const msgBuffer = new TextEncoder().encode(message);
+            const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
+            const hashArray = Array.from(new Uint8Array(hashBuffer));
+            return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+        }
+
+        window.toggleAdminPasswordVisibility = function() {
+            const input = document.getElementById('admin-password-input');
+            const icon = document.getElementById('admin-eye-icon');
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.setAttribute('data-lucide', 'eye-off');
+            } else {
+                input.type = 'password';
+                icon.setAttribute('data-lucide', 'eye');
+            }
+            if (window.lucide) window.lucide.createIcons();
+        };
+
+        window.openAdminGate = function() {
+            if (isAdminAuthenticated) {
+                document.getElementById('admin-panel').classList.remove('hidden');
+                document.getElementById('admin-panel').scrollIntoView({ behavior: 'smooth' });
+                return;
+            }
+            const input = document.getElementById('admin-password-input');
+            input.value = '';
+            input.type = 'password';
+            const icon = document.getElementById('admin-eye-icon');
+            if (icon) icon.setAttribute('data-lucide', 'eye');
+            document.getElementById('admin-auth-error').classList.add('hidden');
+            document.getElementById('admin-gate-modal').classList.remove('hidden');
+            if (window.lucide) window.lucide.createIcons();
+            setTimeout(() => input.focus(), 100);
+        };
+
+        window.closeAdminGate = function() {
+            document.getElementById('admin-gate-modal').classList.add('hidden');
+        };
+
+        window.verifyAdminPassword = async function(event) {
+            event.preventDefault();
+            const inputVal = document.getElementById('admin-password-input').value.trim();
+            const expectedSecret = String.fromCharCode(...ADMIN_KEY_CODES);
+
+            const [hashedInput, expectedHash] = await Promise.all([
+                sha256Hex(inputVal),
+                sha256Hex(expectedSecret)
+            ]);
+
+            if (hashedInput === expectedHash) {
+                isAdminAuthenticated = true;
+                closeAdminGate();
+                document.getElementById('admin-panel').classList.remove('hidden');
+                renderAdminTable();
+                document.getElementById('admin-panel').scrollIntoView({ behavior: 'smooth' });
+                showToast("تم تسجيل الدخول إلى لوحة الإدارة بنجاح.", "success");
+            } else {
+                document.getElementById('admin-auth-error').classList.remove('hidden');
+            }
+        };
+
+        window.closeAdminPanel = function() {
+            isAdminAuthenticated = false;
+            document.getElementById('admin-panel').classList.add('hidden');
+        };
+
+        // 13. عرض جدول الإدارة وتحديث الإحصائيات
+        window.renderAdminTable = function() {
+            const tbody = document.getElementById('admin-bookings-tbody');
+            const searchQuery = document.getElementById('admin-search-input').value.toLowerCase().trim();
+            
+            const allRecords = Object.values(bookingsMap).sort((a, b) => a.dateKey.localeCompare(b.dateKey));
+            
+            const activeBookingsCount = allRecords.filter(r => r.type !== 'blocked').length;
+            const blockedDaysCount = allRecords.filter(r => r.type === 'blocked').length;
+            
+            document.getElementById('stat-total-bookings').textContent = activeBookingsCount;
+            document.getElementById('stat-blocked-days').textContent = blockedDaysCount;
+
+            const filtered = allRecords.filter(rec => {
+                if (!searchQuery) return true;
+                const searchable = `${rec.dateKey} ${rec.fullDateArabic || ''} ${rec.researcherName || ''} ${rec.department || ''} ${rec.thesisTitle || ''} ${rec.reason || ''}`.toLowerCase();
+                return searchable.includes(searchQuery);
+            });
+
+            if (filtered.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="7" class="p-8 text-center text-slate-400 font-semibold">
+                            لا توجد حجوزات أو أيام مغلقة مطابقة للبحث حالياً.
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            tbody.innerHTML = filtered.map(rec => {
+                if (rec.type === 'blocked') {
+                    return `
+                        <tr class="bg-amber-50/60 hover:bg-amber-50 transition">
+                            <td class="p-3 font-bold text-slate-800 whitespace-nowrap">${escapeHtml(rec.fullDateArabic || rec.dateKey)}</td>
+                            <td class="p-3" colspan="5">
+                                <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-amber-200 text-amber-900 font-bold text-xs">
+                                    يوم مغلق إدارياً: ${escapeHtml(rec.reason || 'إجازة / مؤتمر')}
+                                </span>
+                            </td>
+                            <td class="p-3 text-center no-print">
+                                <button onclick="promptCancelBooking('${rec.dateKey}', true)" class="bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-1.5 rounded-lg text-xs font-bold transition">
+                                    إعادة فتح اليوم
+                                </button>
+                            </td>
+                        </tr>
+                    `;
+                }
+
+                return `
+                    <tr class="hover:bg-slate-50 transition align-top">
+                        <td class="p-3 font-bold text-academic-900 whitespace-nowrap">
+                            <div>${escapeHtml(rec.fullDateArabic)}</div>
+                            <span class="text-[11px] text-slate-400 font-mono">${escapeHtml(rec.dateKey)}</span>
+                        </td>
+                        <td class="p-3">
+                            <div class="font-bold text-slate-900">${escapeHtml(rec.researcherName)}</div>
+                            <span class="inline-block mt-1 px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 text-[10px] font-bold">أقر بوصول التقارير</span>
+                        </td>
+                        <td class="p-3 whitespace-nowrap">
+                            <span class="px-2 py-0.5 rounded-md bg-academic-100 text-academic-800 font-bold text-xs">${escapeHtml(rec.degree)}</span>
+                            <div class="text-xs text-slate-600 mt-1">${escapeHtml(rec.department)}</div>
+                        </td>
+                        <td class="p-3 max-w-xs">
+                            <p class="text-xs font-semibold text-slate-800 leading-relaxed">${escapeHtml(rec.thesisTitle)}</p>
+                        </td>
+                        <td class="p-3 text-xs space-y-1 max-w-xs">
+                            <div><strong class="text-slate-600">الإشراف:</strong> ${escapeHtml(rec.supervisors)}</div>
+                            <div><strong class="text-slate-600">الحكم:</strong> ${escapeHtml(rec.committee)}</div>
+                        </td>
+                        <td class="p-3 text-xs whitespace-nowrap">
+                            <div dir="ltr" class="text-right font-bold text-slate-800">${escapeHtml(rec.researcherPhone)}</div>
+                            <div class="text-slate-500 mt-0.5">${escapeHtml(rec.researcherId)}</div>
+                        </td>
+                        <td class="p-3 text-center no-print">
+                            <button onclick="promptCancelBooking('${rec.dateKey}', false)" class="bg-red-600 hover:bg-red-700 text-white px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1 mx-auto">
+                                <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+                                <span>إلغاء الحجز</span>
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+
+            if (window.lucide) window.lucide.createIcons();
+        };
+
+        // 14. إغلاق يوم يدوياً من قِبل الإدارة
+        window.adminBlockDate = async function() {
+            if (!isAdminAuthenticated || !db) return;
+
+            const dateKey = document.getElementById('admin-block-date').value;
+            const reason = document.getElementById('admin-block-reason').value.trim() || 'إغلاق إداري';
+
+            if (!dateKey) {
+                showToast("يرجى تحديد التاريخ المراد إغلاقه أولاً.", "warning");
+                return;
+            }
+
+            if (bookingsMap[dateKey]) {
+                showToast("هذا اليوم محجوز أو مغلق بالفعل!", "error");
+                return;
+            }
+
+            try {
+                const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'defense_bookings', dateKey);
+                await setDoc(docRef, {
+                    type: 'blocked',
+                    dateKey: dateKey,
+                    fullDateArabic: formatArabicFullDate(dateKey),
+                    reason: reason,
+                    createdAt: serverTimestamp()
+                });
+                document.getElementById('admin-block-date').value = '';
+                document.getElementById('admin-block-reason').value = '';
+                showToast("تم إغلاق اليوم وإخفاؤه من تقويم الباحثين بنجاح.", "success");
+            } catch (error) {
+                console.error("Block Date Error:", error);
+                showToast("حدث خطأ أثناء إغلاق اليوم.", "error");
+            }
+        };
+
+        // 15. إلغاء حجز أو إعادة فتح يوم مغلق
+        window.promptCancelBooking = function(dateKey, isBlockedDay) {
+            pendingDeleteDateKey = dateKey;
+            pendingDeleteIsBlocked = isBlockedDay;
+            const msgEl = document.getElementById('confirm-cancel-msg');
+            const reasonWrapper = document.getElementById('cancel-reason-wrapper');
+            
+            if (isBlockedDay) {
+                msgEl.textContent = "هل تريد إعادة فتح هذا اليوم ليصبح متاحاً للحجز أمام الباحثين؟";
+                if (reasonWrapper) reasonWrapper.classList.add('hidden');
+            } else {
+                msgEl.textContent = "هل أنت متأكد من إلغاء حجز هذا الباحث؟ سيعود اليوم متاحاً فوراً على هواتف جميع الباحثين ويُسمح للباحث بالحجز مجدداً بعد استيفاء الشروط.";
+                if (reasonWrapper) {
+                    reasonWrapper.classList.remove('hidden');
+                    const selectEl = document.getElementById('cancel-reason-select');
+                    const customEl = document.getElementById('cancel-reason-custom');
+                    if (selectEl) selectEl.selectedIndex = 0;
+                    if (customEl) {
+                        customEl.value = '';
+                        customEl.classList.add('hidden');
+                    }
+                }
+            }
+            
+            document.getElementById('confirm-cancel-modal').classList.remove('hidden');
+        };
+
+        window.handleCancelReasonPreset = function(val) {
+            const customEl = document.getElementById('cancel-reason-custom');
+            if (!customEl) return;
+            if (val === 'custom') {
+                customEl.classList.remove('hidden');
+                customEl.focus();
+            } else {
+                customEl.classList.add('hidden');
+            }
+        };
+
+        window.closeConfirmCancelModal = function() {
+            pendingDeleteDateKey = null;
+            pendingDeleteIsBlocked = false;
+            document.getElementById('confirm-cancel-modal').classList.add('hidden');
+        };
+
+        document.getElementById('btn-execute-cancel').onclick = async function() {
+            if (!pendingDeleteDateKey || !db || !isAdminAuthenticated) return;
+
+            try {
+                const targetRecord = bookingsMap[pendingDeleteDateKey];
+
+                // تسجيل الحجز الملغى في سجل الإلغاءات الإدارية إذا كان حجز باحث
+                if (!pendingDeleteIsBlocked && targetRecord) {
+                    const selectVal = document.getElementById('cancel-reason-select')?.value || '';
+                    const customVal = document.getElementById('cancel-reason-custom')?.value.trim() || '';
+                    const finalReason = selectVal === 'custom' ? (customVal || 'إلغاء إداري') : selectVal;
+
+                    const cancelledColRef = collection(db, 'artifacts', appId, 'public', 'data', 'cancelled_bookings');
+                    await addDoc(cancelledColRef, {
+                        ...targetRecord,
+                        cancellationReason: finalReason,
+                        cancelledAt: serverTimestamp()
+                    });
+                }
+
+                const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'defense_bookings', pendingDeleteDateKey);
+                await deleteDoc(docRef);
+                showToast("تم إلغاء الموعد وإعادة إتاحة اليوم في التقويم فوراً.", "success");
+            } catch (error) {
+                console.error("Delete Error:", error);
+                showToast("حدث خطأ أثناء الإلغاء.", "error");
+            } finally {
+                closeConfirmCancelModal();
+            }
+        };
+
+        // 16. تصدير البيانات إلى ملف CSV متوافق مع Excel العربي
+        window.exportBookingsCSV = function() {
+            const records = Object.values(bookingsMap)
+                .filter(r => r.type !== 'blocked')
+                .sort((a, b) => a.dateKey.localeCompare(b.dateKey));
+
+            if (records.length === 0) {
+                showToast("لا توجد حجوزات لتصديرها حالياً.", "warning");
+                return;
+            }
+
+            const headers = ["التاريخ", "اليوم", "اسم الباحث", "الرقم القومي/الجامعي", "الهاتف", "الدرجة", "القسم", "عنوان الرسالة", "المشرفون", "لجنة الحكم"];
+            const rows = records.map(r => [
+                r.dateKey,
+                r.fullDateArabic,
+                r.researcherName,
+                r.researcherId,
+                r.researcherPhone,
+                r.degree,
+                r.department,
+                r.thesisTitle,
+                r.supervisors,
+                r.committee
+            ].map(val => `"${String(val || '').replace(/"/g, '""')}"`).join(','));
+
+            // إضافة BOM لدعم اللغة العربية في Excel
+            const csvContent = "\uFEFF" + [headers.join(','), ...rows].join('\n');
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `حجوزات_المناقشات_العلمية_${new Date().toISOString().slice(0, 10)}.csv`;
+            link.click();
+            URL.revokeObjectURL(url);
+        };
+
+        // 17. نافذة مشاركة الرابط للطلاب وحل مشكلة الصفحة البيضاء في روابط المعاينة المؤقتة
+        function isSandboxedPreviewUrl() {
+            const href = window.location.href || '';
+            return href.startsWith('blob:') ||
+                   href.startsWith('about:') ||
+                   href.includes('usercontent.goog') ||
+                   href.includes('webcontainer') ||
+                   window.self !== window.top;
+        }
+
+        window.openShareModal = function() {
+            const warningBox = document.getElementById('sandbox-url-warning');
+            if (warningBox) {
+                if (isSandboxedPreviewUrl()) {
+                    warningBox.classList.remove('hidden');
+                } else {
+                    warningBox.classList.add('hidden');
+                }
+            }
+            document.getElementById('share-guide-modal').classList.remove('hidden');
+            if (window.lucide) window.lucide.createIcons();
+        };
+
+        window.closeShareModal = function() {
+            document.getElementById('share-guide-modal').classList.add('hidden');
+        };
+
+        window.downloadStandaloneHTML = function() {
+            const docClone = document.documentElement.cloneNode(true);
+            // إخفاء النوافذ المنبثقة المفتوحة في النسخة المحفوظة
+            docClone.querySelectorAll('#share-guide-modal, #booking-modal, #receipt-modal, #admin-gate-modal, #confirm-cancel-modal, #admin-panel').forEach(el => {
+                el.classList.add('hidden');
+            });
+            const htmlContent = '<!DOCTYPE html>\n' + docClone.outerHTML;
+            const blob = new Blob([htmlContent], { type: 'text/html;charset=utf-8' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'index.html';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            showToast("تم تحميل ملف index.html بنجاح! يمكنك رفعه على Netlify أو GitHub Pages.", "success");
+        };
+
+        window.copyShareLink = function() {
+            let urlToCopy = window.location.href;
+            try {
+                if (window.top && window.top.location && window.top.location.href && !window.top.location.href.startsWith('about:')) {
+                    urlToCopy = window.top.location.href;
+                }
+            } catch (e) {
+                // cross-origin iframe: keep current URL
+            }
+
+            const tempInput = document.createElement('input');
+            tempInput.value = urlToCopy;
+            document.body.appendChild(tempInput);
+            tempInput.select();
+            document.execCommand('copy');
+            document.body.removeChild(tempInput);
+            showToast("تم نسخ الرابط! تأكد من تفعيل المشاركة العامة (Share) ليفتح لدى الطلاب.", "success");
+        };
+
+        // 18. نظام الإشعارات المنبثقة (Toast)
+        function showToast(message, type = 'info') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            
+            const colors = {
+                success: 'bg-emerald-800 text-white border-emerald-600',
+                error: 'bg-red-800 text-white border-red-600',
+                warning: 'bg-amber-700 text-white border-amber-500',
+                info: 'bg-academic-900 text-white border-academic-700'
+            };
+
+            toast.className = `${colors[type] || colors.info} border px-4 py-3 rounded-xl shadow-xl text-xs sm:text-sm font-bold flex items-center justify-between gap-3 pointer-events-auto transition-all duration-300`;
+            toast.innerHTML = `<span>${escapeHtml(message)}</span>`;
+            
+            container.appendChild(toast);
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                setTimeout(() => toast.remove(), 300);
+            }, 4500);
+        }
+
+        // حماية النصوص من XSS
+        function escapeHtml(str) {
+            if (!str) return '';
+            return String(str)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#039;');
+        }
+
+        // تشغيل النظام عند تحميل الصفحة
+        window.addEventListener('DOMContentLoaded', () => {
+            if (window.lucide) window.lucide.createIcons();
+            renderCalendar();
+            initFirebase();
+        });
+    </script>
+
+</body></html>
